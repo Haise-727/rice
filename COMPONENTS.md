@@ -743,6 +743,8 @@ Every change gets logged here: what, where, why, how to revert.
 | 2026-08-27 | faillock | `deny 3→10`, `unlock_time 600→60` (a typo cost 10 min lockout) | `/etc/security/faillock.conf` | `/etc/security/faillock.conf.bak-20260827` |
 | 2026-08-27 | palette | 🔒 CONFIRMED: **matugen** for Material You palette + **gowall** for image ops | — | — |
 | 2026-08-27 | repo | Pushed to private GitHub `Haise-727/rice` | — | `gh repo delete` |
+| 2026-08-27 | cleanup | Removed `krabby-bin`; deleted orphaned `~/.cache/zen` (59M, browser not installed) | — | `yay -S krabby-bin` |
+| 2026-08-27 | spec | Round 3: mouse-drag, lofi stream, dolphin, uwsm, cava→top bar, desktop clock, multi-site booru | `COMPONENTS.md` §36 | git history |
 
 ## Where everything lives
 - **Active configs:** `~/.config/{hypr,waybar,mako,fuzzel}/`
@@ -1089,3 +1091,54 @@ Danbooru's API caps **2 tags** for normal/anonymous accounts (Gold = 6). Plan:
 7. **Thunar** — "looks bad and hard to modify." Theme it via GTK (cheap, limited), or switch to
    **nautilus**/**dolphin** (better looking, heavier)? yazi is already agreed for TUI.
 8. **Per-app pause** — should it also pause on **screen-off / ambient workspace entry**?
+
+---
+
+# 36. Round 3 answers + new requirements (2026-08-27)
+
+## 🔒 Resolved
+| Q | Answer |
+|---|---|
+| Drag gestures | **Mouse drag** from screen edge (not touchpad swipe) |
+| Background music | **Lofi internet radio stream** via mpv; fall back to local files if streams are flaky |
+| File manager | **Switch to dolphin** (thunar looks dated / hard to theme). yazi still the TUI |
+| uwsm | **Yes — adopt, but carefully.** Session-entry swap + systemd app scoping |
+| cava placement | **Top-middle, right of the date, next to the media player** (per topbar ref). NOT a separate left zone |
+| Top-middle drag | Reveals **the whole dashboard** |
+| Logout gif | Placeholder for now. **Candidate found: `kurukuru.gif`** from the caelestia archive (*kurukuru* = spinning) — likely the "spinning gif" remembered. Also available: `bongocat.gif`, `~/Pictures/kaneki-change.gif` |
+| cava in borders | **Subtle waves on beat is fine** — with a settings toggle. (Supersedes the earlier "no animations" note, which applied to gradients/border styling) |
+| VSCode live theme reload | **Don't bother** — leave it, it updates on reopen |
+
+## 🔒 NEW — desktop clock on the wallpaper
+At startup a **large clock renders over the wallpaper** (see reference screenshot — big time,
+day + date beneath). **Double-clicking the time in the top-middle hover toggles it on/off.**
+- Layer-shell surface on the background layer, above wallpaper, below windows
+- Position/size/font configurable in settings
+- Ties into §24 desktop widgets
+
+## 🔒 Booru — multi-site with a switcher
+- **Gelbooru = primary** (has most of what's wanted, and a more permissive tag limit)
+- **Danbooru = secondary** (faster responses, but hard 2-tag cap)
+- **User switches between them in the UI** — so the backend must be site-agnostic from day one
+- UI reference (screenshot): **left-side panel**, tabbed, with a **tag input at the bottom**
+  carrying a **site selector**, an **NSFW toggle**, and **slash-commands** (`/mode`, `/clear`)
+- User wants **translator + booru tabs**; **no AI/"Intelligence" tab**
+
+## 🔒 Visual reference — illogical-impulse
+Both reference screenshots are **illogical-impulse** (end-4 dots).
+Notably this is the **same project `quickshell-overview` (§33 ref 4) was extracted from**, so it's
+a consistent reference for the whole look: top bar layout, left side-panel, settings window.
+- Top bar: left = shell/settings label · centre-left = media player title + controls ·
+  centre = date/time · right = brightness, battery, wifi, bluetooth
+- Settings window: category tabs, Light/Dark toggle, **Material palette modes**
+  (Auto/Content/Expressive/Fidelity/Fruit Salad/Neutral/Rainbow/Tonal Spot) — matugen's modes,
+  confirming the matugen choice again
+
+## ⚠️ OPEN — is the ambient workspace still wanted?
+Round-3 answer 7 read: *"idk abt having a ambient workspace itself so no need."*
+This may retract **§29 entirely** — a major feature. Evidence it's being superseded:
+- cava has moved **to the top bar**, not the ambient workspace
+- the desktop clock now renders **over the wallpaper on every workspace**, not on a dedicated one
+- background music needs no workspace of its own
+→ **Needs an explicit yes/no.** If dropped, §29 and the ws6-highlight in §4.2 both come out,
+  and the bar shows 5 workspaces instead of 6.
