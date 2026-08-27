@@ -1,8 +1,18 @@
 # Linux Rice — Complete Component Catalog
 
-**How to use this doc:** every component has a `>>> WANT:` line. Fill it in with either
-a link (repo/screenshot/video) or a plain description and I'll pick the implementation.
-Leave blank = skip it. Write `KEEP` = keep what's there now.
+**How to use this doc:** every component has a `>>> WANT:` / `<<< END` block. Write whatever
+you like between those two markers — plain text, multiple lines, links, questions, half-formed
+thoughts. **Nothing is quoted or formatted, so you can't break it.** Don't delete the markers;
+they're how I find your answers.
+
+```
+>>> WANT:
+write anything here, as many lines as you want
+<<< END
+```
+
+Leave a block empty = skip it. Write `KEEP` = keep what's there now.
+Plain text elsewhere in the file is fine too — I read the whole thing.
 
 Baseline hardware/software this is written against:
 - Lenovo Legion, RTX 4060 Max-Q (nvidia-open 610), single **eDP-1 1920x1080@144Hz**
@@ -49,24 +59,36 @@ Menu that picks the OS/kernel.
 - **Have now:** ✅ GRUB 2.14, `GRUB_TIMEOUT=5`, `GFXMODE=auto`, no theme, os-prober on (dual-boot Windows)
 - **Options:** GRUB (themeable, most flexible) · systemd-boot (minimal, fast, plain) · rEFInd (pretty, auto-detects) · Limine (modern, themeable)
 - **Rice angle:** GRUB themes (Catppuccin, Vimix, distro themes), custom resolution, background image, font
-- `>>> WANT: 🔒 **Themed GRUB screen** — was missing before. ⚠️ Secure Boot is ON; user OK to disable if needed but **ASK FIRST**. See §1.3.`
+>>> WANT:
+🔒 **Themed GRUB screen** — was missing before. ⚠️ Secure Boot is ON; user OK to disable if needed but **ASK FIRST**. See §1.3.
+<<< END
+
 
 ### 1.2 Boot splash
 Hides kernel text during boot with a logo/animation.
 - **Have now:** ❌ none (you see raw kernel messages)
 - **Options:** Plymouth (standard; themes: spinner, bgrt, custom), or leave text-mode (some prefer it)
 - **Note:** needs an mkinitcpio hook; adds ~1s boot time
-- `>>> WANT:`
+>>> WANT:
+what would u recommend here... some anime animation into transition would be cool, keep this open I'll search some up
+<<< END
+
 
 ### 1.3 Secure Boot / signing
 - **Have now:** ✅ Secure Boot **enabled**, sbctl managing keys, GRUB+kernel signed
 - **Constraint:** anything touching the boot chain (Plymouth, new kernel, bootloader swap) must be re-signed or you won't boot
-- `>>> WANT:` (usually KEEP)
+>>> WANT:
+
+<<< END
+ (usually KEEP)
 
 ### 1.4 Silent boot / kernel params
 - **Have now:** `loglevel=3 quiet`
 - **Options:** full silent (`quiet splash loglevel=0 rd.systemd.show_status=false`), or verbose for debugging
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -77,17 +99,26 @@ First graphical thing you see; handles login + session choice.
 - **Have now:** ✅ SDDM (from `sddm-git`), enabled
 - **Options:** SDDM (Qt, very themeable — sugar-candy, corners, sddm-astronaut) · GDM · LightDM · **greetd + tuigreet** (minimal TTY-style, fast) · ly (TUI, animated) · **no DM** (autologin → `uwsm start hyprland` from shell profile)
 - **Rice angle:** this is a big visual moment — themed SDDM vs minimal tuigreet is a real aesthetic fork
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 2.2 Session entries
 - **Have now:** `hyprland.desktop`, `hyprland-uwsm.desktop`, and a **stale `caelestia.desktop`** (dead, package removed — will clean)
 - **Note:** `uwsm` (universal wayland session manager) is NOT installed but a session entry references it. uwsm gives proper systemd user-session integration (better app scoping, cleaner shutdown). Worth considering.
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 2.3 Autologin / passwordless
 - **Have now:** ❌ password each boot
 - **Note:** with full-disk-encryption absent, autologin is a real security tradeoff on a laptop
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -96,28 +127,43 @@ First graphical thing you see; handles login + session choice.
 ### 3.1 Compositor choice
 - **Have now:** ✅ Hyprland 0.56.2
 - **Options:** Hyprland (animations, plugins, most riced) · Sway (stable, i3-like) · river (tag-based) · niri (scrollable tiling — very different feel)
-- `>>> WANT:` (assume KEEP unless you say otherwise)
+>>> WANT:
+
+<<< END
+ (assume KEEP unless you say otherwise)
 
 ### 3.2 Animations & curves
 - **Have now:** ✅ your `animations.conf` (preserved from before)
 - **Rice angle:** bezier curves, per-type durations, workspace slide vs fade, window open/close style
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 3.3 Decoration — blur, shadow, rounding, opacity
 - **Have now:** ✅ `decoration.conf` + vars: rounding 20, border 3px, shadow on (range 20), **blur currently OFF** (`$blurEnabled = false`), opacity 1
 - **Rice angle:** blur passes/size, xray blur, dim inactive, active/inactive border gradients (animated borders possible)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 3.4 Gaps & layout
 - **Have now:** gaps in 10 / out 10 / single-window 15, **workspace gaps 150**
 - **Options:** dwindle (default) · master · **hy3** (i3-like tabs/splits, plugin) · scroller plugin
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 3.5 Hyprland plugins
 - **Have now:** ❌ none
 - **Options:** **hyprexpo** (workspace exposé grid) · **hyprspace** (overview w/ drag-drop) · hy3 (layout) · hyprbars (title bars) · hyprwinwrap (video wallpaper *behind* windows) · borders-plus-plus · hyprtrails
 - **Note:** plugins must be rebuilt on every Hyprland update (`hyprpm update`) — a maintenance cost
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -127,7 +173,10 @@ First graphical thing you see; handles login + session choice.
 - **Have now:** ✅ waybar 0.15 (minimal config I just wrote — top, 34px, plain text modules)
 - **Options:** **waybar** (GTK, CSS, stable, huge module set) · **quickshell** (QML, what caelestia uses — most powerful, most work) · **AGS/Astal** (JS/TS + GTK, very flexible) · **eww** (Yuck/Lisp, widgets) · **HyprPanel** (AGS-based, batteries-included) · **fabric** (Python)
 - **Tradeoff:** waybar = fast to configure, limited interactivity. quickshell/AGS = anything you can imagine, but it's real programming.
-- `>>> WANT: 🔒 **quickshell** (QML). Claude writes the code. waybar stays installed as fallback until trusted.`
+>>> WANT:
+🔒 **quickshell** (QML). Claude writes the code. waybar stays installed as fallback until trusted.
+<<< END
+
 
 ### 4.2 Bar modules — tick what you want
 Workspaces (with window icons?) · window title · clock/date · calendar popup · system tray ·
@@ -135,11 +184,17 @@ audio (+ per-app mixer?) · mic · brightness · battery (+ time remaining) · n
 bluetooth (device list?) · CPU · RAM · disk · temperature · **GPU (nvidia)** · media player (art/scrub) ·
 weather · pending updates · notification bell + DND toggle · VPN · recording indicator ·
 power profile switcher · idle-inhibitor toggle · custom scripts
-- `>>> WANT:`
+>>> WANT:
+One small button for taskmanager/resource panel liek btop, then workspaces (5) with that one special one (also a way to do the wrokspace manager tool we talked abt), Date and time in the middle which when hoevered shall activate and show a lot of stuff liek it does on caelestia, audio visualizer would be nice but it needs to go when hovered (make sections where each sections goes away when it's deignated dropdown is triggered), battery and wifi alone here, keep sound, brightness on the right side like caelestia along with logout options and notification and other stuff if dragged out from right. the gpu, ram and all that stuff should be hovered from topmiddle and come out liek caelestia top middle does on hover, weather is useless so no, notifs, dnd, vpn and all that stuff on right side drag. the sections are as follows (top left/middle/right, right middle, left middle, bottom middle, bottom right corner(settings here)) each should have appropriate hover and drag, we can decide as we go if I want something or gone. ofc this should also be manageable in the settings
+<<< END
+
 
 ### 4.3 Bar behaviour
 - Position (top/bottom/left) · auto-hide/reveal-on-hover · per-monitor · floating w/ margins · rounded · transparency · exclusive zone
-- `>>> WANT: 🔒 **TOP bar** (explicit — the old side bar was a main complaint). Other behaviour ❓ open: auto-hide? floating w/ margins? rounded? transparency?`
+>>> WANT:
+🔒 **TOP bar** (explicit — the old side bar was a main complaint). Other behaviour ❓ open: auto-hide? floating w/ margins? rounded? transparency?
+<<< END
+
 
 ---
 
@@ -149,17 +204,26 @@ power profile switcher · idle-inhibitor toggle · custom scripts
 - **Have now:** ✅ fuzzel (bound to tap-Super), `fuzzel.ini` exists from old setup
 - **Options:** **fuzzel** (fast, native wayland, minimal) · **rofi** (wayland fork; most themeable, huge ecosystem) · wofi · **anyrun** (Rust, plugins) · **walker** (modern, many modules) · tofi (fastest) · custom (quickshell/AGS)
 - **Rice angle:** centered vs top, icons, blur behind, animated, grid vs list, image previews
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 5.2 Launcher modes wanted
 apps (drun) · run command · window switcher · **clipboard history** · emoji picker · **calculator** ·
 unit converter · file search · ssh hosts · power menu · web search · dictionary · color picker ·
 kill process · wallpaper picker · project/repo jumper
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 5.3 The "tap Super" behaviour
 Old caelestia had tap-Super-to-launch **with interrupt** (typing/clicking cancels it, so Super+key combos still work). Currently approximated with `bindr` (fires on release) — slightly different feel.
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -169,12 +233,18 @@ Old caelestia had tap-Super-to-launch **with interrupt** (typing/clicking cancel
 - **Have now:** ✅ mako 1.11 (config written: top-right, 8px radius, teal border, 5s timeout)
 - **Options:** **mako** (light, INI config) · **dunst** (classic, very configurable) · **swaync** (notification *center* w/ history panel + DND toggle + widgets) · custom (quickshell/AGS)
 - **Note:** if you want a notification **history panel**, that's swaync or a custom shell — mako has no UI
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 6.2 Features
 history/center · DND toggle · grouping · inline replies · action buttons · images/album art ·
 per-app rules · urgency styling · sounds · on-screen position
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -184,12 +254,18 @@ per-app rules · urgency styling · sounds · on-screen position
 - **Have now:** ✅ swaylock-effects (called by hypridle at 5min, and Super+M / Super+Alt+L)
 - **Options:** **hyprlock** (Hyprland-native, most riceable — widgets, shaders, per-monitor) · **swaylock-effects** (blur/pixelate, no widgets) · gtklock (GTK modules) · custom (quickshell)
 - **Rice angle:** blurred/dimmed wallpaper, big clock, date, user avatar, **media player controls**, weather, battery, failed-attempt feedback, fade-in animation
-- `>>> WANT: 🔒 **Custom quickshell lock screen** (quickshell supports `WlSessionLock`). Was missing entirely before. Design ❓ open — see questions in §31.`
+>>> WANT:
+🔒 **Custom quickshell lock screen** (quickshell supports
+<<< END
+WlSessionLock`). Was missing entirely before. Design ❓ open — see questions in §31.`
 
 ### 7.2 Auth methods
 - **Have now:** password only
 - **Options:** password · **fingerprint** (fprintd — does your Legion have a reader?) · **face unlock** (Howdy, uses IR/webcam) · YubiKey
-- `>>> WANT: 🔒 **PIN / typed password ONLY.** No fingerprint reader, no face/IR unlock. Do not build biometric paths.`
+>>> WANT:
+🔒 **PIN / typed password ONLY.** No fingerprint reader, no face/IR unlock. Do not build biometric paths.
+<<< END
+
 
 ---
 
@@ -198,23 +274,35 @@ per-app rules · urgency styling · sounds · on-screen position
 ### 8.1 Idle daemon
 - **Have now:** ✅ hypridle — lock at 5min, screen off at 10min, **no auto-suspend** (deliberately, while nvidia resume is unproven)
 - **Rice angle:** dim-before-lock, different timeouts on AC vs battery, inhibit while fullscreen/video
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 8.2 Power management
 - **Have now:** ✅ power-profiles-daemon (just restored)
 - **Options:** power-profiles-daemon (simple 3 profiles) · TLP (deep control) · auto-cpufreq (adaptive)
 - **Relevant:** ⚠️ nvidia suspend/resume services just enabled to fix your wake hang — **needs testing**
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 8.3 Battery / thermal
 - Low-battery notification + critical action · charge limit (Legion supports conservation mode via `lenovolegionlinux`) · fan curves · thermal throttle alerts
 - **Note:** you had `lenovolegionlinux-git-debug` (removed as orphan); the main package may be worth having for fan/charge control
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 8.4 GPU mode switching
 - **Have now:** ⚪ envycontrol installed (hybrid/integrated/nvidia switching)
 - **Note:** on a Max-Q laptop, integrated-only mode massively improves battery
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -224,7 +312,10 @@ per-app rules · urgency styling · sounds · on-screen position
 - **Have now:** ✅ awww (a swww fork — binaries are `awww`/`awww-daemon`), 30 wallpapers in `~/Pictures/Wallpapers`
 - **Options:** swww/awww (animated transitions, per-output) · hyprpaper (light, Hyprland-native) · swaybg (bare)
 - **Rice angle:** transition types (wipe/grow/outer), random cycling on timer, per-workspace wallpapers
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 9.2 LIVE / animated wallpaper — pick which kind
 This is several very different technologies:
@@ -234,15 +325,21 @@ This is several very different technologies:
 - **Behind-windows video:** `hyprwinwrap` plugin (any app becomes the wallpaper layer)
 - **Audio-reactive:** cava-driven visualiser as background (caelestia had this)
 - ⚠️ **All of these cost GPU + battery continuously.** On a laptop this is a real tradeoff.
-- `>>> WANT: 💬 **YES — required.** User wants to "just run live wallpapers", plans to
+>>> WANT:
+💬 **YES — required.** User wants to "just run live wallpapers", plans to
 **use Wallpaper Engine content**, and wants **gowall's upscaler applied to videos**.
 Undecided on shader vs audio-reactive — asked what those even are; explained in §32.
-→ Leading approach: **`linux-wallpaperengine` + mpvpaper**, with GLSL/audio-reactive optional later.`
+→ Leading approach: **
+<<< END
+linux-wallpaperengine` + mpvpaper**, with GLSL/audio-reactive optional later.`
 
 ### 9.3 Wallpaper picker UI
 - **Have now:** ⚪ waypaper installed (GTK picker), plus Super+W = random
 - **Options:** waypaper · rofi/fuzzel with image previews · custom shell module
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -253,7 +350,10 @@ The thing that makes a rice feel *cohesive* — one palette across bar, terminal
 - **Have now:** ❌ nothing (caelestia did this via `python-materialyoucolor`, now removed). Your `~/.config/hypr/scheme/` still holds a static colour conf.
 - **Options:** **matugen** (Material You from wallpaper — what caelestia used, Rust, template-based) · **wallust** (fast pywal successor, actively maintained) · pywal (classic, unmaintained-ish) · **fixed hand-picked palette** (Catppuccin/Gruvbox/Rose Pine/Tokyo Night/Nord — no generation, total control)
 - **Big decision:** auto-generated-from-wallpaper (changes with every wallpaper, cohesive but unpredictable) vs fixed palette (consistent, predictable, you control every hex)
-- `>>> WANT: 💬 **Wallpaper-generated via `gowall` if viable, else caelestia's matugen-style approach.**
+>>> WANT:
+💬 **Wallpaper-generated via
+<<< END
+gowall` if viable, else caelestia's matugen-style approach.**
 Reference: **gowall** — https://github.com/Achno/gowall · docs https://achno.github.io/gowall-docs/
 User explicitly wants gowall's extras too (see §33): **image upscaler** (for making wallpapers
 AND upscaling live-wallpaper video), colour-theory utilities, icon theme conversion, bg removal.
@@ -264,23 +364,35 @@ Material You palette. See §33.`
 ### 10.2 What gets themed by it
 hyprland borders · waybar · launcher · notifications · lock screen · **terminal** · **GTK apps** ·
 **Qt apps** · btop · cava · fish/starship · **VSCode** · **Firefox** · **Discord** · **Spotify** · mako · thunar
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 10.3 GTK theming
 - **Have now:** ⚪ nwg-look + lxappearance installed; papirus-icon-theme
 - **Needs:** GTK3 + GTK4/libadwaita theme, icon theme, cursor theme, font
 - **Note:** GTK4/libadwaita resists theming; needs `gtk4/gtk.css` overrides
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 10.4 Qt theming
 - **Have now:** ⚪ qt6ct installed (qt5ct was removed as orphan — may need re-adding for Qt5 apps)
 - **Options:** qt5ct/qt6ct (palette + style) · **Kvantum** (SVG-based, much prettier) · adwaita-qt
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 10.5 Cursor & icons & fonts
 - **Have now:** cursor `sweet-cursors` @24 (referenced in your vars — verify installed), Papirus icons, **JetBrainsMono Nerd Font** (Cascadia Nerd was removed in the caelestia cascade)
 - **Rice angle:** icon theme (Papirus/Tela/Colloid/Reversal), cursor (Bibata/Sweet/Phinger), UI font vs mono font vs display font
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -296,27 +408,42 @@ showing live window thumbnails, click/drag to switch or move windows.
   - **caelestia/quickshell overview** — what you had; fully custom, live previews + app icons
   - **AGS/HyprPanel overview** — similar, JS-based
 - **Decide:** live window *thumbnails* (needs compositor plugin or screencopy) vs just *app icons* per workspace (much cheaper, what waybar can do today)
-- `>>> WANT: 🔒 **Live window thumbnails.** Confirmed — not just app icons.
-→ Implementation: quickshell `ScreencopyView` (wlr-screencopy) per window. Cost noted in §31.`
+>>> WANT:
+🔒 **Live window thumbnails.** Confirmed — not just app icons.
+→ Implementation: quickshell
+<<< END
+ScreencopyView` (wlr-screencopy) per window. Cost noted in §31.`
 
 ### 11.2 Alt-Tab / window switcher
 - **Have now:** ✅ `Alt+Tab` cycles within group (`changegroupactive`) — not a global window switcher
 - **Options:** hyprswitch (GUI switcher w/ previews) · rofi window mode · sway-style `focus next`
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 11.3 Special workspaces / scratchpads
 - **Have now:** ✅ `Super+S` toggles special ws; vars exist for music/comms/todo/sysmon scratchpads (bindings were caelestia's, now commented out)
 - **Rice angle:** dropdown terminal (quake-style), floating music player, notes scratchpad
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 11.4 Window rules
 - **Have now:** ✅ `rules.conf` preserved (opacity, float, blur rules — caelestia layerrules commented out)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 11.5 Gestures (touchpad)
 - **Have now:** ✅ Hyprland native: 4-finger workspace swipe, 3-finger gestures configured
 - **Options:** native hyprland gestures · hyprgrass plugin (more gestures) · libinput-gestures
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -326,17 +453,26 @@ showing live window thumbnails, click/drag to switch or move windows.
 - **Have now:** ✅ kitty 0.48 (primary, `$terminal`), ✅ foot (panic-button terminal)
 - **Options:** kitty (GPU, tabs/splits, images, ligatures) · foot (tiny, fast, native wayland) · alacritty (GPU, minimal) · wezterm (Lua config, multiplexer built in) · ghostty (new, fast)
 - **Rice angle:** padding, opacity/blur, background image, font + ligatures, cursor trail, tab bar styling
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 12.2 Shell + prompt
 - **Have now:** ✅ fish 4.8 (login shell) + starship 1.26
 - **Rice angle:** starship prompt design (powerline/minimal/two-line), git status, language versions, command duration, exit status styling
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 12.3 Terminal extras
 - **Have now:** ✅ tmux, ✅ fastfetch (has config), ✅ btop, ✅ fzf, ✅ krabby (pokemon fetch)
 - **Options:** zellij (modern multiplexer) · eza/lsd (ls) · bat (cat) · zoxide (cd) · ripgrep · fd · yazi (file manager) · atuin (shell history) · cava (audio visualiser)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -345,16 +481,25 @@ showing live window thumbnails, click/drag to switch or move windows.
 ### 13.1 GUI file manager
 - **Have now:** ✅ thunar (+ archive plugin, tumbler thumbnails, ffmpegthumbnailer)
 - **Options:** thunar (light, XFCE) · nautilus (GNOME, modern) · dolphin (KDE, feature-rich) · nemo · **cosmic-files**
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 13.2 TUI file manager
 - **Have now:** ❌ none
 - **Options:** **yazi** (fast, image previews in kitty) · ranger · lf · nnn
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 13.3 Disk / mounts
 - NTFS `/media/Data` + `/media/Windows` auto-mounted via fstab · udiskie for USB automount · gvfs (installed)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -364,23 +509,35 @@ showing live window thumbnails, click/drag to switch or move windows.
 - **Have now:** ✅ cliphist + wl-clipboard (Super+C → cliphist via fuzzel)
 - **Options:** cliphist (history, images) · clipse (TUI) · copyq (GUI, most features)
 - **Rice angle:** image previews in history, pinned entries, per-type filtering
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 14.2 Screenshot
 - **Have now:** ✅ grim + slurp + swappy — `Print` full→clipboard, `Super+S` region→swappy, `Super+Shift+S` region→clipboard, `Super+Shift+Alt+S` region→file
 - **Options:** grim/slurp (primitive, scriptable) · grimblast · hyprshot · **satty** (nicer annotation than swappy) · flameshot
 - **Rice angle:** freeze-screen-while-selecting (caelestia had this — grim alone doesn't), annotation UI, auto-upload, OCR
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 14.3 Screen recording
 - **Have now:** ✅ wf-recorder (Super+Alt+R w/ audio, Ctrl+Alt+R, Super+Shift+Alt+R region)
 - **Options:** wf-recorder (simple) · **gpu-screen-recorder** (NVENC, replay buffer — was removed in cascade, was installed before) · wl-screenrec (fast, VAAPI) · OBS (full production)
 - **Rice angle:** instant-replay hotkey, recording indicator in bar, GIF output
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 14.4 Colour picker / magnifier / OCR
 - **Options:** hyprpicker (colour pick) · woomer/wl-zoom (magnify) · `grim+tesseract` (OCR screenshot to text)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -390,7 +547,10 @@ Volume/brightness/caps-lock popups.
 - **Have now:** ❌ **none** — brightness/volume keys work but show no feedback (caelestia provided the OSD)
 - **Options:** **swayosd** (volume/brightness/caps, themeable) · avizo · custom (quickshell/AGS) · waybar tooltip only
 - **Note:** this is the most-noticed missing piece right now — you press brightness and see nothing
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -399,18 +559,27 @@ Volume/brightness/caps-lock popups.
 ### 16.1 Audio stack
 - **Have now:** ✅ pipewire + wireplumber + pipewire-pulse/alsa/jack, pamixer, pavucontrol
 - **Options add-on:** **easyeffects** (EQ, noise suppression, autogain) · noise-suppression-for-voice
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 16.2 Music & players
 - **Have now:** ✅ Spotify (spotify-launcher) + ⚪ spicetify-cli (theming), ✅ mpv, ✅ vlc, ✅ playerctl
 - **Options:** spicetify themes (Comfy/Text/Dribbblish) · mpd + ncmpcpp/rmpc · YouTube Music (th-ch client) · feishin
 - **Rice angle:** media widget in bar w/ album art + scrubber, lyrics display, **cava visualiser**, lock-screen media controls
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 16.3 Audio visualiser
 - **Have now:** ❌ (`libcava` was removed in the caelestia cascade)
 - **Options:** cava (terminal/bar bars) · in-shell visualiser (caelestia had one) · glava (GL, desktop)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -419,7 +588,10 @@ Volume/brightness/caps-lock popups.
 - **Have now:** ✅ NetworkManager + nm-applet + nm-connection-editor, ✅ bluez + blueman, ⚪ cloudflared
 - **Options:** GUI picker in bar (waybar network module w/ menu, or custom) · iwd (lighter wifi) · bluetuith (TUI)
 - **Rice angle:** wifi picker popup from the bar rather than launching nm-connection-editor
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -428,7 +600,10 @@ Volume/brightness/caps-lock popups.
 - **Have now:** ✅ btop
 - **Options:** btop (TUI, themeable) · **nvtop** (GPU — relevant, you have a 4060) · bottom · macchina/fastfetch · **conky**-style desktop widgets · mission-center (GUI)
 - **Rice angle:** desktop widget overlay (CPU/GPU/RAM/temp), bar modules, dedicated scratchpad monitor workspace (`Ctrl+Shift+Esc` var already defined)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -437,7 +612,10 @@ Volume/brightness/caps-lock popups.
 - **Have now:** ✅ wlogout (bound to `Ctrl+Alt+Del`)
 - **Options:** wlogout (grid of buttons, themeable) · wleave (maintained fork) · rofi power menu · custom shell session screen
 - **Rice angle:** blurred backdrop, icon grid, confirmation dialogs, hibernate/suspend/lock/logout/reboot/shutdown
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -446,7 +624,10 @@ Volume/brightness/caps-lock popups.
 Plumbing — invisible when right, very broken when wrong.
 - **Have now:** ✅ xdg-desktop-portal-hyprland + -gtk (screenshare/file pickers), ✅ polkit-gnome agent, ✅ gnome-keyring (secrets — **your git/gh/VSCode creds depend on this**)
 - **Options:** consider **uwsm** for proper systemd user-session scoping (app2unit already in use for app launching)
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -454,7 +635,10 @@ Plumbing — invisible when right, very broken when wrong.
 
 - **Have now:** ✅ Hyprland native input config (`input.conf`), touchpad disable-while-typing, libinput-tools
 - **Options:** **keyd**/kanata (remap at kernel level — caps→esc/ctrl, home-row mods) · fcitx5 (IME, CJK input) · emoji picker · `hyprctl` per-device configs
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -463,22 +647,34 @@ Plumbing — invisible when right, very broken when wrong.
 ### 22.1 Browser
 - **Have now:** ✅ Firefox 154
 - **Options:** userChrome.css (hide tab bar, vertical tabs, match palette) · **Sidebery**/Tree Style Tab · Zen Browser (pre-riced Firefox fork) · **Note:** you have `~/.cache/zen` — Zen was installed at some point
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 22.2 Editor
 - **Have now:** ✅ VSCode 1.134 (settings symlinked from `~/temp_dots/vscode/`), ✅ neovim 0.12
 - **Options:** VSCode theme matching palette · neovim distro (LazyVim/NvChad/AstroNvim/kickstart) · transparent background
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 22.3 Discord
 - **Have now:** ✅ vesktop (just installed) — Vencord built in
 - **Options:** Vencord themes, custom CSS matching palette
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ### 22.4 Spotify
 - **Have now:** ✅ spotify-launcher + ⚪ spicetify-cli
 - **Note:** spicetify needs re-applying after every Spotify update
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -486,7 +682,10 @@ Plumbing — invisible when right, very broken when wrong.
 
 - **Have now:** ✅ JetBrainsMono Nerd Font, Noto CJK, Noto emoji. (Cascadia Nerd, Rubik, Material Symbols were removed in the caelestia cascade — **Material Symbols matters if you want icon glyphs**)
 - **Needs:** mono (terminal/code) · UI/sans (bar, menus) · display (clock, big text) · **icon font** (Material Symbols / Nerd Font glyphs) · CJK · emoji
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -494,7 +693,10 @@ Plumbing — invisible when right, very broken when wrong.
 
 - **Options:** desktop clock overlay · calendar · todo/notes widget · weather · system stats · music/album art · sticky notes · dock (⚪ `nwg-dock-hyprland` installed) · conky
 - **Note:** caelestia had a dashboard (media/performance/weather) and desktop clock
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -509,7 +711,10 @@ Plumbing — invisible when right, very broken when wrong.
   - **yadm** — git + encryption
   - **Nix/home-manager** — fully declarative, steepest curve
 - **Strong recommendation:** whatever we build, it goes in **version control with an upstream remote** so updates are merges, not manual re-copies. This is the single fix for "caelestia is hard to modify."
-- `>>> WANT:`
+>>> WANT:
+
+<<< END
+
 
 ---
 
@@ -565,7 +770,10 @@ Search/browse booru sites from inside the shell, preview results, download, set 
   - **Integration:** feeds §10.1 (new wallpaper → regenerate palette) and §9.3 (wallpaper picker)
 - ⚠️ **Rating filter matters** — most booru APIs default to including explicit content. Needs an
   explicit default (`rating:safe`?) and a settings toggle. Also: some sites need an API key for full access.
-- `>>> WANT:` 💬 **No rating filter needed** — user is fine with explicit content, so no
+>>> WANT:
+
+<<< END
+ 💬 **No rating filter needed** — user is fine with explicit content, so no
   safe-mode default. Sites + UI surface still open.
   → Reference for the browse/preview UI: **Aino-Chan/wallpaper-selector** (§33 ref 7), which
   already does grid + **live preview while choosing**.
@@ -611,7 +819,10 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 - Widget set configurable: cava · music player · clock · date · weather · system stats · notes · media art
 - ⚠️ Cava + music running from login is a constant background cost — small, but real on battery
 
-- `>>> WANT:` 🔒 **Option A (floating dashboard, auto-shift)** — but on **workspace 6**, not 2.
+>>> WANT:
+
+<<< END
+ 🔒 **Option A (floating dashboard, auto-shift)** — but on **workspace 6**, not 2.
   Plus: **the workspace-number indicator in the bar must highlight** the ambient workspace so
   it's visually distinct from ordinary workspaces.
   💬 Widget set still open — confirmed so far: **cava + background music + clock**.
@@ -636,7 +847,10 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 - ⚠️ **Scope warning:** a good settings GUI is often as much work as the features it configures.
   Worth deciding early whether v1 is "settings for everything" or "settings for the things
   you actually retune often, with JSON for the rest."
-- `>>> WANT:` 🔒 **NOT everything.** User: "if we do for EVERYTHING then it just becomes
+>>> WANT:
+
+<<< END
+ 🔒 **NOT everything.** User: "if we do for EVERYTHING then it just becomes
   overloaded, so JSON for some is fine, just keep good documentation for it."
   → **Rule:** settings GUI covers what you retune often (wallpaper, palette, bar modules,
   ambient workspace on/off, live-wallpaper toggle). Everything else = documented JSON.
@@ -731,7 +945,10 @@ mapping.
 → **Recommendation: use both, they're complementary.**
   - **matugen** → the Material You UI palette (bar, launcher, notifications, lock, shell)
   - **gowall** → image operations (upscale, recolour wallpapers, icon theming, bg removal)
-- `>>> CONFIRM:` OK to use matugen for the palette and gowall for image ops?
+>>> CONFIRM:
+
+<<< END
+ OK to use matugen for the palette and gowall for image ops?
 
 ### ref 4 — Shanu-Kumawat/quickshell-overview ★ DIRECT HIT for §11.1
 https://github.com/Shanu-Kumawat/quickshell-overview
