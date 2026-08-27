@@ -13,6 +13,9 @@ Baseline hardware/software this is written against:
 Legend for "Have now": ✅ installed & running · ⚪ installed, unused · ❌ not installed
 Legend for answers: 🔒 **LOCKED** (decided) · ❓ open · 💬 needs discussion
 
+> ⚠️ **Round-2 answers below are DRAFT (💬), not final.** User explicitly said
+> "this is not a final confirmation" — still iterating. Only the table below is locked.
+
 ## 🔒 Locked decisions (2026-08-27)
 | Decision | Choice |
 |---|---|
@@ -21,7 +24,10 @@ Legend for answers: 🔒 **LOCKED** (decided) · ❓ open · 💬 needs discussi
 | Bar position | **TOP** (old setup was a side bar — a main complaint) |
 | Lock auth | **PIN / typed password ONLY** — no fingerprint, no face/IR scanners |
 | Secure Boot | May be disabled **if needed** — but ALWAYS ask first |
-| Settings | **Everything must be modifiable in an integrated settings GUI** |
+| Settings | Integrated GUI for **frequently-retuned** things; JSON for the rest, **well documented** |
+| Overview | **Live window thumbnails** (not just icons) |
+| Booru rating | **No filter** — explicit content allowed |
+| Repo hosting | Push to user's **own GitHub account** (Haise-727) |
 
 ## 🔒 The gap list — what caelestia did NOT provide
 This is the reason the custom build exists:
@@ -228,7 +234,10 @@ This is several very different technologies:
 - **Behind-windows video:** `hyprwinwrap` plugin (any app becomes the wallpaper layer)
 - **Audio-reactive:** cava-driven visualiser as background (caelestia had this)
 - ⚠️ **All of these cost GPU + battery continuously.** On a laptop this is a real tradeoff.
-- `>>> WANT: 🔒 **YES — live wallpaper required** (was entirely missing). ❓ Which kind? See §31 Q3 — video loop vs shader vs Wallpaper Engine scenes are very different builds.`
+- `>>> WANT: 💬 **YES — required.** User wants to "just run live wallpapers", plans to
+**use Wallpaper Engine content**, and wants **gowall's upscaler applied to videos**.
+Undecided on shader vs audio-reactive — asked what those even are; explained in §32.
+→ Leading approach: **`linux-wallpaperengine` + mpvpaper**, with GLSL/audio-reactive optional later.`
 
 ### 9.3 Wallpaper picker UI
 - **Have now:** ⚪ waypaper installed (GTK picker), plus Super+W = random
@@ -244,7 +253,13 @@ The thing that makes a rice feel *cohesive* — one palette across bar, terminal
 - **Have now:** ❌ nothing (caelestia did this via `python-materialyoucolor`, now removed). Your `~/.config/hypr/scheme/` still holds a static colour conf.
 - **Options:** **matugen** (Material You from wallpaper — what caelestia used, Rust, template-based) · **wallust** (fast pywal successor, actively maintained) · pywal (classic, unmaintained-ish) · **fixed hand-picked palette** (Catppuccin/Gruvbox/Rose Pine/Tokyo Night/Nord — no generation, total control)
 - **Big decision:** auto-generated-from-wallpaper (changes with every wallpaper, cohesive but unpredictable) vs fixed palette (consistent, predictable, you control every hex)
-- `>>> WANT: 🔒 **Wallpaper-generated.** caelestia already did this (`python-materialyoucolor`). User is sharing **an additional reference link** that 'does a lot of stuff' — waiting on that before choosing matugen vs custom.`
+- `>>> WANT: 💬 **Wallpaper-generated via `gowall` if viable, else caelestia's matugen-style approach.**
+Reference: **gowall** — https://github.com/Achno/gowall · docs https://achno.github.io/gowall-docs/
+User explicitly wants gowall's extras too (see §33): **image upscaler** (for making wallpapers
+AND upscaling live-wallpaper video), colour-theory utilities, icon theme conversion, bg removal.
+→ Needs evaluation: gowall is an image-processing toolkit; matugen is a palette generator.
+They may be **complementary rather than alternatives** — gowall for image ops, matugen for the
+Material You palette. See §33.`
 
 ### 10.2 What gets themed by it
 hyprland borders · waybar · launcher · notifications · lock screen · **terminal** · **GTK apps** ·
@@ -281,7 +296,8 @@ showing live window thumbnails, click/drag to switch or move windows.
   - **caelestia/quickshell overview** — what you had; fully custom, live previews + app icons
   - **AGS/HyprPanel overview** — similar, JS-based
 - **Decide:** live window *thumbnails* (needs compositor plugin or screencopy) vs just *app icons* per workspace (much cheaper, what waybar can do today)
-- `>>> WANT: 🔒 **YES — required.** 'Between-workspace app switcher.' ❓ Live thumbnails vs app icons — see §31 Q4.`
+- `>>> WANT: 🔒 **Live window thumbnails.** Confirmed — not just app icons.
+→ Implementation: quickshell `ScreencopyView` (wlr-screencopy) per window. Cost noted in §31.`
 
 ### 11.2 Alt-Tab / window switcher
 - **Have now:** ✅ `Alt+Tab` cycles within group (`changegroupactive`) — not a global window switcher
@@ -545,7 +561,10 @@ Search/browse booru sites from inside the shell, preview results, download, set 
   - **Integration:** feeds §10.1 (new wallpaper → regenerate palette) and §9.3 (wallpaper picker)
 - ⚠️ **Rating filter matters** — most booru APIs default to including explicit content. Needs an
   explicit default (`rating:safe`?) and a settings toggle. Also: some sites need an API key for full access.
-- `>>> WANT:` ❓ Which sites? Default rating filter? Launcher-mode, bar-widget, or standalone window?
+- `>>> WANT:` 💬 **No rating filter needed** — user is fine with explicit content, so no
+  safe-mode default. Sites + UI surface still open.
+  → Reference for the browse/preview UI: **Aino-Chan/wallpaper-selector** (§33 ref 7), which
+  already does grid + **live preview while choosing**.
 
 ---
 
@@ -588,7 +607,12 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 - Widget set configurable: cava · music player · clock · date · weather · system stats · notes · media art
 - ⚠️ Cava + music running from login is a constant background cost — small, but real on battery
 
-- `>>> WANT:` ❓ **A, B, or C?** And which widgets in the combo?
+- `>>> WANT:` 🔒 **Option A (floating dashboard, auto-shift)** — but on **workspace 6**, not 2.
+  Plus: **the workspace-number indicator in the bar must highlight** the ambient workspace so
+  it's visually distinct from ordinary workspaces.
+  💬 Widget set still open — confirmed so far: **cava + background music + clock**.
+  Strong candidates from user's references: **player disc/vinyl UI** (§33 ref 6), weather
+  dashboard (§33 ref 5). Cava style ref: **snglrTTY** black-hole visualiser (§33 ref 1).
 
 ---
 
@@ -608,7 +632,12 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 - ⚠️ **Scope warning:** a good settings GUI is often as much work as the features it configures.
   Worth deciding early whether v1 is "settings for everything" or "settings for the things
   you actually retune often, with JSON for the rest."
-- `>>> WANT:` ❓ Single window or popout? Everything in v1, or the frequently-changed subset?
+- `>>> WANT:` 🔒 **NOT everything.** User: "if we do for EVERYTHING then it just becomes
+  overloaded, so JSON for some is fine, just keep good documentation for it."
+  → **Rule:** settings GUI covers what you retune often (wallpaper, palette, bar modules,
+  ambient workspace on/off, live-wallpaper toggle). Everything else = documented JSON.
+  → **Every JSON key must be documented** in a generated `CONFIG-REFERENCE.md`.
+  💬 Single window vs bar-popout still open.
 
 ---
 
@@ -628,3 +657,112 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 7. **Settings scope:** everything in v1, or the frequently-retuned subset first?
 8. **Bar modules** (§4.2) and **launcher modes** (§5.2) — those checklists are still unfilled.
 9. **Aesthetic reference** — any screenshots/videos of rices you like? Worth more than descriptions.
+
+---
+
+# 32. Explainer — live wallpaper technologies
+
+Asked 2026-08-27. **Decision: GLSL shaders, no audio sync.**
+
+- **GLSL shader** 🔒 CHOSEN — a small program the GPU runs for every pixel, every frame.
+  Colour comes from math (time, position, noise), so animation never loops or repeats and the
+  whole thing is a few KB of text. Flowing gradients, starfields, plasma, fluid. Thousands of
+  ready-made ones on Shadertoy. **Cost:** GPU runs continuously — real battery drain on a laptop.
+- **Video loop** — an actual video file played as the background (`mpvpaper`). Simplest, works
+  with anything you can film or download. Loops visibly. Decoding cost is lower than a shader.
+- **Wallpaper Engine scenes** — runs real WE workshop content via `linux-wallpaperengine`.
+  Confirmed viable (§33 ref 2 uses it). Needs the Steam content on disk.
+- **Audio-reactive** ❌ NOT WANTED for wallpaper — taps the PipeWire output, runs an FFT to split
+  sound into frequency bands, drives visuals from those numbers. (This is still how **cava in the
+  ambient workspace** works — that's a separate widget, still wanted.)
+
+---
+
+# 33. Reference projects — researched 2026-08-27
+
+### ref 1 — snglrTTY (visualiser look for the ambient workspace)
+https://github.com/the-unknown/snglrtty · Rust, MIT
+- Reads default PulseAudio **monitor** source via `pactl` (works on PipeWire), 200 samples @
+  44100 Hz, splits into **64 frequency bands**, draws a circle + radial bars, maps amplitude to
+  ASCII `#+*.` with ANSI colour. Themes: default/fire/ocean/forest/mono; configurable bar count,
+  decay, radius, "ghost mode".
+- ⚠️ **Terminal ASCII only — no spectrum data export**, so it can't feed our shell directly.
+- ✅ **But the approach is trivially reimplementable in QML**: same idea (audio → FFT → 64 bands →
+  radial bars), drawn natively instead of as text. caelestia did exactly this via `libcava`.
+  → **Plan: rebuild the *look* in QML driven by cava's raw output.** Cleaner and sharper than
+  embedding a terminal, and it inherits our palette.
+
+### ref 2 — Aino-Chan/wallpaper-selector (wallpaper picker + live preview)
+https://github.com/Aino-Chan/wallpaper-selector · quickshell + QML
+- Grid browser, arrow/mouse/scroll navigation, **playlist** (shift-click to queue), **command mode**
+  (`:`), double-click to apply, Escape/click-outside to close.
+- Deps: `ffmpeg`, **`linux-wallpaper-engine`**, `quickshell`, `pywal`, `swww`.
+- ✅ **Confirms linux-wallpaperengine + quickshell works** — this is the proof-of-concept for
+  running your Wallpaper Engine content.
+- ⚠️ Author states the scripts are "as is… don't expect them to work out of box" →
+  **use as reference, don't depend on it.**
+
+### ref 3 — gowall (image toolkit) 🔒 ADOPTED, but not as the palette engine
+https://github.com/Achno/gowall · docs https://achno.github.io/gowall-docs/
+- **Upscaling:** Real-ESRGAN **ncnn Vulkan**. Needs a **Vulkan GPU** (your RTX 4060 ✅,
+  `vulkan-icd-loader` already installed). Auto-downloads the model on first run.
+  Scales **x2/x3/x4 only**. Models: `realesr-animevideov3` (default, anime), `realesrgan-x4plus`
+  (generic), `realesrgan-x4plus-anime`.
+  → **The anime models are ideal for booru wallpapers.**
+  `gowall upscale <img> -s <2|3|4> -m <model>` · also `--batch` and `--dir`
+- ⚠️ **VIDEO UPSCALING: the author explicitly recommends against it.** It's images-only; the
+  anime-video model *could* be driven frame-by-frame through ffmpeg, but the docs say
+  "I really recommend against doing that." → **Not planned. Revisit only if you insist.**
+- **Other adopted features:** palette extraction (pywal-style dominant colours), recolour image
+  to a theme (Catppuccin/Dracula/Gruvbox/Nord/20+, custom via `~/.config/gowall/config.yml`),
+  **icon theme conversion** (svg/ico recolour), background removal, pixel-art conversion,
+  compression, format conversion, OCR, GIF creation. **Supports unix pipes → scriptable.** ✅
+
+### ⚠️ Key finding — gowall is NOT a Material You generator
+gowall extracts **dominant colours, "like pywal"** — a flat set of colours.
+**Material You** (what caelestia used, and what makes a UI feel coherent) is different: it derives
+a full *tonal system* — primary/secondary/tertiary/surface/on-surface at many tone steps — with
+guaranteed contrast pairings. A flat pywal palette can't fill that role without a lot of manual
+mapping.
+→ **Recommendation: use both, they're complementary.**
+  - **matugen** → the Material You UI palette (bar, launcher, notifications, lock, shell)
+  - **gowall** → image operations (upscale, recolour wallpapers, icon theming, bg removal)
+- `>>> CONFIRM:` OK to use matugen for the palette and gowall for image ops?
+
+### ref 4–6 — still to research
+- Hyprland theme switcher + **OmniSearch popup** (user: "the pop up screen here is cool")
+- **Pixelated QML lockscreen themes** for sddm/quickshell (user wants modified versions)
+- **Nier: Automata lockscreen** (user wants modified version)
+- **Matugen + quickshell dynamic colours** post — includes the **player disc/vinyl UI** and
+  equalizer the user called "goated" with cava
+- Weather dashboard rice (§29 ambient-workspace candidate)
+→ Need the post/repo URLs from user, or I'll search for them.
+
+---
+
+# 34. ⚠️ Lock screen — REMOVED 2026-08-27
+
+**Four accidental lockouts in one day.** Removed entirely at user request.
+
+**Root causes (all three compounded):**
+1. `Super+M` was bound to `swaylock -f` while `$kbMusic = Super, M` — reaching for music locked
+   the screen. This is why it locked "without going idle".
+2. **swaylock had no config** → flat grey/white screen, no clock, no ring, no keystroke feedback.
+   It was working and invisible; user typed blind into what looked like a crash.
+3. **`pam_faillock` deny=3 / unlock_time=600** → three blind typos locked the account for
+   10 minutes, during which *the correct password also fails*.
+4. Final incident: swaylock **died while holding the session lock**, leaving Hyprland's
+   "lockscreen app died" screen. Required `hyprctl --instance 0 dispatch exit` (killed the session).
+
+**Current state:** `swaylock-effects` uninstalled · all lock keybinds commented ·
+hypridle has **no `lock_cmd` and no `before_sleep_cmd`** (that dbus listener was the invisible
+trigger) · screen-off at 15 min only, no password.
+
+### 🔒 Hard requirements for any future lock screen
+- **Must not be able to crash and strand the session.** A watchdog or auto-unlock-on-crash path.
+- **Must show unmistakable visual feedback** — clock, password field, per-keystroke indicator,
+  failed-attempt counter.
+- **faillock must be made forgiving first** (still `deny=3/600` — needs a decision) or the same
+  trap returns.
+- Test only with a second TTY already logged in as an escape hatch.
+- PIN/typed password only — no biometrics.
