@@ -1149,16 +1149,23 @@ The round-3 "no need" was a **misunderstanding of the name** — user read "ambi
 → **Renaming it "Startup Workspace" throughout** to avoid the confusion recurring.
 → Workspace count stays **6** (5 normal + highlighted startup workspace on ws6).
 
-### ⚠️ But its contents need re-deciding
-All three original occupants have since found better homes:
-| Original occupant | Where it went |
-|---|---|
-| cava | **top bar**, right of the date (round 3) |
-| clock | **desktop clock over the wallpaper**, visible on every workspace (§36) |
-| background music | a **lofi stream** — needs no workspace |
-→ **Open question:** what actually lives on ws6 now? Candidates: a *large* cava/snglrTTY-style
-  visualiser (bigger than the bar one), the media player with album art, weather dashboard
-  (§33 ref), notes/todo, system stats, a bongocat/kurukuru idle animation.
+### 🔒 Contents (confirmed 2026-08-27)
+**Duplicate widgets are fine** — a second cava/clock is just another surface reading the same
+data source. No conflict, negligible extra cost.
+
+ws6 holds:
+- **Profile** (avatar + user)
+- **Date and time** (its own large display, separate from the bar clock and the desktop clock)
+- **Media player with cava** — this is where the lofi background music lives
+- **A gif / animation / terminal animation** "for funsies" (kurukuru, bongocat, or an ASCII toy)
+- **Notification box** showing current notifications
+- **Battery + smaller system data**
+
+### 🔒 Fullscreen dashboard behaviour
+When ws6 is focused, it becomes a **fullscreen dashboard**: the **top bar and side panel hide**,
+giving the whole screen to the widgets. Leaving ws6 restores them.
+→ Implementation: `ZoneManager` gets a `dashboardMode` state — all zones collapse and hide while
+  the startup workspace is active. This is the same state machine, one extra mode.
 
 ## 🔒 File manager — nautilus, not dolphin
 Measured 2026-08-27: dolphin = **53 MB / 67 new packages** (full KDE Frameworks + **baloo**
@@ -1168,3 +1175,22 @@ GTK theming path. → **nautilus**. (`nemo` is the middle ground if nautilus pro
 ## 🔒 Lofi stream
 Claude picks a reliable default station, **plus a station picker in the UI** so it's selectable.
 Local-files fallback if streams are unreliable.
+
+## 🔒 Final round answers (2026-08-27)
+| Item | Decision |
+|---|---|
+| Two cava / two clocks | **Fine** — separate surfaces reading the same source, no conflict |
+| matugen palette mode | **Pick later** — expose all modes in settings |
+| Launcher modes (§5.2) | **Approved as listed** |
+| Fonts | **Claude's choice** |
+| Per-app theming (§22) | **Not needed now** — revisit later |
+| Top bar behaviour (§4.3) | **Always visible, 100% opacity** — no auto-hide, no transparency |
+| Dotfiles tracking | **Yes** — Claude commits, user pushes |
+
+## ⚠️ Suspend/resume — STILL UNVERIFIED (as of 2026-08-27)
+Only one suspend exists in the journal: `PM: suspend entry (deep)` at **Aug 25 18:48:17**, with
+**no matching exit** — that is the original failure, and it predates the fix (services enabled
+19:05:32). **No suspend has been attempted since.**
+What felt like a successful resume was **DPMS screen-off** (hypridle's only listener blanks the
+screen at 15 min; the machine stays awake). That never touches the nvidia suspend path.
+→ **Real test, when nothing is unsaved: `systemctl suspend`.** Until then, treat lid-close as risky.
