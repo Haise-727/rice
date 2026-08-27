@@ -70,8 +70,13 @@ Hides kernel text during boot with a logo/animation.
 - **Options:** Plymouth (standard; themes: spinner, bgrt, custom), or leave text-mode (some prefer it)
 - **Note:** needs an mkinitcpio hook; adds ~1s boot time
 >>> WANT:
-what would u recommend here... some anime animation into transition would be cool, keep this open I'll search some up<<< END
+what would u recommend here... some anime animation into transition would be cool, keep this open I'll search some up
+<<< END
 
+**Claude's recommendation:** Plymouth with a **custom script theme** — plays a sequence of PNG
+frames, so short looping anime-style animation is achievable (not video). Costs ~1s boot time and
+is the piece most likely to need re-signing under Secure Boot. Pairs with §1.4's "verbose first,
+pretty later" — slot it late, alongside GRUB.
 
 ### 1.3 Secure Boot / signing
 - **Have now:** ✅ Secure Boot **enabled**, sbctl managing keys, GRUB+kernel signed
@@ -719,9 +724,9 @@ Plumbing — invisible when right, very broken when wrong.
 
 ---
 
-# 26. Open Questions For You
+# 26. Open Questions — RESOLVED
 
-Already answered so remove this
+All answered. Superseded by the locked-decisions table at the top of this doc and §35.
 
 # 27. Checkpoint & Change Log
 
@@ -853,9 +858,9 @@ can be an mpv/mpd instance the shell controls and draws UI for — so neither ne
 
 ---
 
-# 31. Open Questions — Round 2
+# 31. Open Questions — Round 2 — RESOLVED
 
-these also answered already so cleanup
+All answered. Superseded by §35 (Round 3).
 
 ---
 
@@ -890,8 +895,10 @@ https://github.com/the-unknown/snglrtty · Rust, MIT
   radial bars), drawn natively instead of as text. caelestia did exactly this via `libcava`.
   → **Plan: rebuild the *look* in QML driven by cava's raw output.** Cleaner and sharper than
   embedding a terminal, and it inherits our palette.
-  
-|>>>WANT: js add these in the special launch workspace' <<<END
+
+>>> WANT:
+js add these in the special launch workspace
+<<< END
 ### ref 2 — Aino-Chan/wallpaper-selector (wallpaper picker + live preview)
 https://github.com/Aino-Chan/wallpaper-selector · quickshell + QML
 - Grid browser, arrow/mouse/scroll navigation, **playlist** (shift-click to queue), **command mode**
@@ -1011,3 +1018,74 @@ trigger) · screen-off at 15 min only, no password.
   trap returns.
 - Test only with a second TTY already logged in as an escape hatch.
 - PIN/typed password only — no biometrics.
+
+---
+
+# 35. Architecture synthesis + Round 3 (2026-08-27)
+
+## 🔒 Resolved this round
+| Q | Answer |
+|---|---|
+| Workspaces in bar | **6** (5 normal + ambient on ws6, highlighted) |
+| Launcher | **quickshell** (not rofi) — behave like caelestia's, bottom-middle drag |
+| Terminal | **kitty** — keep. (`Super+T` already opens kitty; the sticker is your `fastfetch` config) |
+| Live wallpaper | **mpvpaper** for video files as primary; **also integrate linux-wallpaperengine** so WE content works if acquired later |
+| Secure Boot | **STAYS ON.** GRUB theming doesn't require disabling it (see §1.3 note) — and Vanguard needs it |
+| Booru | 2-tag API cap is real; optimise around it (see below) |
+
+## The bar isn't a bar — it's an edge-zone system
+Your §4.2 spec describes something structurally different from a status bar, and it should be
+built that way from day one: **seven independent screen-edge zones**, each owning its own
+hover and drag behaviour, with a rule that opening one zone's panel collapses the others.
+
+| Zone | Resting state | Hover | Drag |
+|---|---|---|---|
+| top-left | resource button · 6 workspaces (ws6 highlighted) | — | — |
+| top-middle | date + time | dashboard: GPU/RAM/temps/calendar, **tabs inside the dropdown** | — |
+| top-right | battery · wifi | — | — |
+| right-middle | — | logout options + gif | slight → logout · full → notif centre, sound, brightness, dnd, vpn, misc |
+| bottom-middle | — | — | launcher |
+| bottom-right | settings | — | — |
+| left-middle | audio visualiser (hides when any panel opens) | — | — |
+
+**Design consequence:** this needs a single `ZoneManager` in the shell owning "which zone is
+open", so collapse/restore is one state machine rather than seven widgets fighting. Worth
+building before any individual zone.
+
+## Booru — optimising around the 2-tag cap
+Danbooru's API caps **2 tags** for normal/anonymous accounts (Gold = 6). Plan:
+1. Send the **2 most restrictive tags** server-side (rarest tags first = smallest result set)
+2. **Filter remaining tags client-side** over fetched pages
+3. Cache tag→post-count locally to know which tags are rarest
+4. Prefetch next page while browsing so client-side filtering doesn't feel slow
+5. **Multi-site backend** — Gelbooru/Safebooru are more permissive; route multi-tag queries there
+6. Blacklist: local, **always-on by default**, one toggle in settings
+
+## Notable feature requests that are real builds
+- **Cross-player auto-pause** ("youtube pausing spotify") — MPRIS-based: watch all players, pause
+  others when one starts. Very doable, genuinely nice.
+- **Windows-style per-app task manager** — a process/app list UI, distinct from btop. Real work.
+- **Theme presets** ("custom images of our rice we can save and load") — snapshot the whole look
+  (palette + wallpaper + zone layout) to a named profile, restore on demand.
+- **OCR / text extractor** from screenshots — ✅ **gowall already does OCR**, so this is nearly free.
+- **hyprpm update manager in settings** — plugins need rebuilding on every Hyprland update.
+- **cava subtly in the window borders** — ⚠️ conflicts with "no gradients or animations" for
+  borders. Needs a ruling (see below).
+
+## Round 3 questions
+1. **Drag gestures** — "slight drag / full drag" from the right edge: mouse-drag from the screen
+   edge, or **touchpad edge-swipe**? (You already use 3-finger workspace swipe.) Changes the
+   implementation a lot.
+2. **cava in borders vs "no animations"** — genuinely contradictory. Options: (a) drop it,
+   (b) static border colour that shifts hue with overall volume (slow, not per-beat),
+   (c) keep it animated only on the ambient workspace. Which?
+3. **Background music source** — you want it but "spotify too heavy". Local files via **mpd**
+   (light, scriptable)? An internet radio stream via mpv? A local folder on loop?
+4. **left-middle zone** — I've assigned the audio visualiser there. Right, or something else?
+5. **Logout gif** — do you have one, or should it be a placeholder for now?
+6. **uwsm** — you said "sure if not too setup heavy." It's moderate: swap the session entry,
+   launch via `uwsm start hyprland`, apps scoped as systemd units (app2unit already does part of
+   this). Benefit is cleaner shutdown/app isolation. Worth it, or skip?
+7. **Thunar** — "looks bad and hard to modify." Theme it via GTK (cheap, limited), or switch to
+   **nautilus**/**dolphin** (better looking, heavier)? yazi is already agreed for TUI.
+8. **Per-app pause** — should it also pause on **screen-off / ambient workspace entry**?
