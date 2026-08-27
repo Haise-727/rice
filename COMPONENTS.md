@@ -535,6 +535,10 @@ Every change gets logged here: what, where, why, how to revert.
 | 2026-08-25 | hyprland | Fixed 0.56 breakage: `misc:vfr` removed, `splitratio`→`layoutmsg` | `misc.conf`, `keybinds.conf` | `.bak` files alongside |
 | 2026-08-25 | session | Removed stale `caelestia.desktop` login entry | `/usr/share/wayland-sessions/` | reinstall caelestia-shell |
 | 2026-08-27 | spec | Locked: quickshell / top bar / generated palette / PIN-only auth; added §28 booru, §29 ambient ws, §30 settings | `~/rice/COMPONENTS.md` | git history |
+| 2026-08-27 | **lock screen** | **REMOVED ENTIRELY** after 4 lockouts — swaylock-effects uninstalled, keybinds commented, hypridle stripped of `lock_cmd`/`before_sleep_cmd` | `hypridle.conf`, `keybinds.conf` | §34; `.bak-lockfix` files |
+| 2026-08-27 | faillock | `deny 3→10`, `unlock_time 600→60` (a typo cost 10 min lockout) | `/etc/security/faillock.conf` | `/etc/security/faillock.conf.bak-20260827` |
+| 2026-08-27 | palette | 🔒 CONFIRMED: **matugen** for Material You palette + **gowall** for image ops | — | — |
+| 2026-08-27 | repo | Pushed to private GitHub `Haise-727/rice` | — | `gh repo delete` |
 
 ## Where everything lives
 - **Active configs:** `~/.config/{hypr,waybar,mako,fuzzel}/`
@@ -729,14 +733,56 @@ mapping.
   - **gowall** → image operations (upscale, recolour wallpapers, icon theming, bg removal)
 - `>>> CONFIRM:` OK to use matugen for the palette and gowall for image ops?
 
-### ref 4–6 — still to research
-- Hyprland theme switcher + **OmniSearch popup** (user: "the pop up screen here is cool")
-- **Pixelated QML lockscreen themes** for sddm/quickshell (user wants modified versions)
-- **Nier: Automata lockscreen** (user wants modified version)
-- **Matugen + quickshell dynamic colours** post — includes the **player disc/vinyl UI** and
-  equalizer the user called "goated" with cava
-- Weather dashboard rice (§29 ambient-workspace candidate)
-→ Need the post/repo URLs from user, or I'll search for them.
+### ref 4 — Shanu-Kumawat/quickshell-overview ★ DIRECT HIT for §11.1
+https://github.com/Shanu-Kumawat/quickshell-overview
+- **Live window thumbnails — exactly what you asked for.** Not icons.
+- **Drag-and-drop windows between workspaces** onto workspace tiles
+- Wayland **screencopy** for capture; `previewMode` is configurable:
+  **`live`** (best visuals, more RAM) vs **`event`** (lower RAM, refreshes on window events)
+  → gives us a direct performance dial if `live` proves heavy at 144Hz
+- Also exposes `previewsEnabled`, `previewRecaptureDelayMs`
+- **matugen integration already built in** — generates Material You into
+  `Appearance.colors.qml`. Validates the matugen decision (§10.1).
+- Launch: `exec-once = qs -c overview`, toggle via `Super+Tab` →
+  `qs ipc -c overview call overview toggle`
+- **Standalone module**, extracted from illogical-impulse specifically to be usable without
+  the whole shell → **best starting point for our overview; study it, don't vendor it**
+- ⚠️ Known issue upstream: "Wayland screencopy buffer management"
+- Deps: Hyprland, quickshell, Qt6 (QtQuick, Quickshell.Wayland, Quickshell.Hyprland)
+
+### ref 5 — Darkkal44/qylock ★ has BOTH lockscreens you liked
+https://github.com/Darkkal44/qylock
+- **30+ themes in one repo**, including the **pixel-art set** (Coffee, Dusk City, Hollow Knight,
+  Minecraft, Genshin, osu!) *and* **NieR: Automata** — the two you singled out
+- Two separate systems: **SDDM themes** (Qt6 declarative, video backgrounds) and a
+  **quickshell lockscreen** launched via `~/.local/share/quickshell-lockscreen/lock.sh`
+- Uses **`ext-session-lock-v1`** (the reason it doesn't work on Plasma)
+- Deps: sddm, qt6-declarative, qt6-5compat, qt6-svg; video needs qt6-multimedia + gstreamer
+- ⚠️⚠️ **NO documented crash failsafe, and no documented PAM/visual-feedback behaviour.**
+  `ext-session-lock-v1` is *precisely* the protocol that stranded you on 2026-08-27 — when the
+  locker dies still holding the lock, the session is unusable. **Adopting qylock as-is would
+  reproduce that risk.** See §34 hard requirements before we touch any lockscreen.
+  → Escape hatch to remember: `hyprctl --instance 0 eval 'hl.clear_crashed_lockscreen()'`
+
+### ref 6 — doannc2212/quickshell-config (theme switcher reference)
+https://github.com/doannc2212/quickshell-config
+- Status bar, launcher, notification daemon, **theme picker overlay with 206 themes**,
+  selection persists across restarts, syncs kitty + system dark/light
+- Uses **matugen or wallust** to generate a palette from an image and repaint bar, launcher,
+  notifications, kitty and Hyprland borders — the "theme switcher" pattern you liked
+- Explicitly modular: "each piece works on its own, take what you like"
+
+### ref 7 — bgibson72/yahr-quickshell (unified theming reference)
+https://github.com/bgibson72/yahr-quickshell
+- Hyprland + quickshell with a **theme creator** (build a palette from background + accent)
+  and one theme synced across **Hyprland, GTK, Kitty, Firefox, VSCodium, Discord**
+- Good reference for §10.2 (what gets themed) — the breadth we want
+
+### still unlocated
+- The **OmniSearch popup** (theme-switcher post) — user: "the pop up screen here is cool"
+- The **player disc / vinyl UI + equalizer** from the matugen+quickshell post
+- Weather-dashboard rice (§29 widget candidate)
+→ User: these are *inspiration, not requirements* — "we don't HAVE to use them."
 
 ---
 
