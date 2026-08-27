@@ -781,7 +781,7 @@ Search/browse booru sites from inside the shell, preview results, download, set 
 
 ---
 
-# 29. Ambient / Startup Workspace 🔒 NEW — needs a design decision
+# 29. Startup Workspace 🔒 CONFIRMED (was "Ambient" — renamed, the old name caused confusion)
 
 **Your requirement:** at login you land on ws1. A "combo" lives on ws2 — **cava + background
 music + clock + misc widgets**. You can slide to it like any normal workspace. But if you open
@@ -1143,11 +1143,28 @@ a consistent reference for the whole look: top bar layout, left side-panel, sett
   (Auto/Content/Expressive/Fidelity/Fruit Salad/Neutral/Rainbow/Tonal Spot) — matugen's modes,
   confirming the matugen choice again
 
-## ⚠️ OPEN — is the ambient workspace still wanted?
-Round-3 answer 7 read: *"idk abt having a ambient workspace itself so no need."*
-This may retract **§29 entirely** — a major feature. Evidence it's being superseded:
-- cava has moved **to the top bar**, not the ambient workspace
-- the desktop clock now renders **over the wallpaper on every workspace**, not on a dedicated one
-- background music needs no workspace of its own
-→ **Needs an explicit yes/no.** If dropped, §29 and the ws6-highlight in §4.2 both come out,
-  and the bar shows 5 workspaces instead of 6.
+## ✅ RESOLVED — the startup workspace stays (§29)
+The round-3 "no need" was a **misunderstanding of the name** — user read "ambient" as
+*"a work-only workspace"*. **It is wanted.** Confirmed 2026-08-27.
+→ **Renaming it "Startup Workspace" throughout** to avoid the confusion recurring.
+→ Workspace count stays **6** (5 normal + highlighted startup workspace on ws6).
+
+### ⚠️ But its contents need re-deciding
+All three original occupants have since found better homes:
+| Original occupant | Where it went |
+|---|---|
+| cava | **top bar**, right of the date (round 3) |
+| clock | **desktop clock over the wallpaper**, visible on every workspace (§36) |
+| background music | a **lofi stream** — needs no workspace |
+→ **Open question:** what actually lives on ws6 now? Candidates: a *large* cava/snglrTTY-style
+  visualiser (bigger than the bar one), the media player with album art, weather dashboard
+  (§33 ref), notes/todo, system stats, a bongocat/kurukuru idle animation.
+
+## 🔒 File manager — nautilus, not dolphin
+Measured 2026-08-27: dolphin = **53 MB / 67 new packages** (full KDE Frameworks + **baloo**
+background indexer); nautilus = **8 MB / 24 new packages**, GTK4/libadwaita matching the existing
+GTK theming path. → **nautilus**. (`nemo` is the middle ground if nautilus proves too minimal.)
+
+## 🔒 Lofi stream
+Claude picks a reliable default station, **plus a station picker in the UI** so it's selectable.
+Local-files fallback if streams are unreliable.
