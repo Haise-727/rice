@@ -1,0 +1,1 @@
+ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="ACAD", RUN+="/bin/bash /home/haise/gpu-switcher.sh"

@@ -140,6 +140,24 @@ Every change follows this loop:
 
 ---
 
+## UI sourcing rule 🔒 (user instruction, 2026-08-27)
+
+**Do not hand-author UI layouts. Adapt proven implementations.**
+Claude has no visual preview here, so writing QML layouts from scratch means guessing at spacing,
+proportion and hierarchy. Claude writes the **glue** - ZoneManager, config schema, IPC, data
+plumbing, matugen wiring - and takes the *visual* components from working projects.
+
+| Surface | Source to adapt |
+|---|---|
+| Top bar, side panel, **settings window** | **illogical-impulse** (source of the user's reference screenshots) |
+| Workspace overview | **Shanu-Kumawat/quickshell-overview** (live thumbnails, drag-drop, matugen) |
+| Lock screen themes | **Darkkal44/qylock** (incl. NieR + pixel-art sets) — ⚠️ needs a crash watchdog first, see §34 |
+| Wallpaper picker w/ live preview | **Aino-Chan/wallpaper-selector** |
+| Theme switcher | **doannc2212/quickshell-config** |
+| Booru panel | illogical-impulse's side-panel layout |
+
+Attribution and licences must be checked and preserved for anything vendored.
+
 ## Settings-first build rule 🔒
 
 Because §30 requires everything to be tunable from one place, we invert the usual order:
