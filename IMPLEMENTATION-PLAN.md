@@ -157,8 +157,33 @@ Agreed 2026-08-27: **the user fills in `COMPONENTS.md`, Claude reads it, respond
 suggestions and questions, and we build the doc up together until it's final.** No code
 until the relevant section is settled.
 
-## Immediate blockers
-1. **Palette reference link** — gates Phase 1, which gates all visual work
-2. **§29 ambient workspace: Option A/B/C**
-3. **§31 Q3** live wallpaper type, **Q4** overview thumbnails-vs-icons
-These three unblock Phases 1, 3 and 4 respectively.
+## Status 2026-08-27 — spec is BUILDABLE, no blockers remain
+
+All architecture decisions are settled. Remaining unknowns (matugen palette mode, GRUB theme
+choice, Plymouth, fonts) are deliberately deferrable and don't gate any phase.
+
+### Ready to start, in this order
+
+**Phase 0 — foundation (small, protects everything after)**
+- [ ] Track live `~/.config` in version control (only `~/rice` is tracked today)
+- [ ] **OSD** — volume/brightness/caps feedback. Currently *nothing* appears on keypress; it is
+      the most-felt daily gap.
+- [ ] ⚠️ **Verify suspend/resume with a real `systemctl suspend`** — still unproven; the only
+      journal record is the original pre-fix failure. Do this before building on top.
+
+**Phase 1 — matugen palette pipeline** (everything visual inherits it)
+
+**Phase 2.0 — `ZoneManager` skeleton** *before any individual zone.* It owns:
+- which zone is open (opening one collapses the others)
+- `dashboardMode` — on ws6, all zones hide for the fullscreen dashboard
+Building zones first would mean seven widgets fighting over collapse/restore.
+
+**Phase 2.1 → 6** as laid out above.
+
+### Known costs to keep in view
+- **hyprland plugins** must be rebuilt on every Hyprland update (`hyprpm update`) — user wants an
+  update manager in settings for this
+- **live wallpaper** (mpvpaper/GLSL) runs the GPU continuously — user's power-profile rule:
+  *quiet = off, balance/performance = on*
+- **overview live thumbnails** cost RAM; `previewMode: event` is the fallback dial
+- **Danbooru 2-tag API cap** — mitigated by rarest-tags-first + client-side filtering + gelbooru
