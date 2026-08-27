@@ -1040,15 +1040,24 @@ Your §4.2 spec describes something structurally different from a status bar, an
 built that way from day one: **seven independent screen-edge zones**, each owning its own
 hover and drag behaviour, with a rule that opening one zone's panel collapses the others.
 
-| Zone | Resting state | Hover | Drag |
+| Zone | Resting state | Hover | Drag (mouse, from edge) |
 |---|---|---|---|
-| top-left | resource button · 6 workspaces (ws6 highlighted) | — | — |
-| top-middle | date + time | dashboard: GPU/RAM/temps/calendar, **tabs inside the dropdown** | — |
-| top-right | battery · wifi | — | — |
-| right-middle | — | logout options + gif | slight → logout · full → notif centre, sound, brightness, dnd, vpn, misc |
-| bottom-middle | — | — | launcher |
-| bottom-right | settings | — | — |
-| left-middle | audio visualiser (hides when any panel opens) | — | — |
+| **top-left** | resource/taskmgr button · workspaces (see note) | — | — |
+| **top-middle** | date + time · **cava** (right of date) · media player | dashboard: GPU/RAM/temps/calendar, **tabs inside the dropdown**. **Double-click the time → toggles the desktop clock** | **full dashboard** |
+| **top-right** | battery · wifi | — | — |
+| **right-middle** | — | logout options + gif | slight → logout · full → notif centre, sound, brightness, dnd, vpn, misc |
+| **bottom-middle** | — | — | launcher |
+| **bottom-right** | settings | — | — |
+| **left-middle** | *free* — cava moved to top-middle in round 3 | — | — |
+| *left side-panel* | — | — | booru + translator, tabbed (per §36 reference) |
+
+**Workspace count** depends on the open §36 question: **6** (5 + highlighted ambient ws6) if the
+ambient workspace stays, **5** if it's dropped.
+
+**Interaction rules**
+- Opening any zone's panel **collapses the others** (single `ZoneManager` state machine)
+- Drags are **mouse-from-edge**, not touchpad gestures (3-finger swipe stays on workspaces)
+- Every zone individually toggleable in settings
 
 **Design consequence:** this needs a single `ZoneManager` in the shell owning "which zone is
 open", so collapse/restore is one state machine rather than seven widgets fighting. Worth
