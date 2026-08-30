@@ -122,6 +122,44 @@ Scope {
                         }
                     }
 
+                    // ---------- power profile ----------
+                    Column {
+                        width: parent.width
+                        spacing: 6
+                        Text {
+                            text: "Power" + (Power.degraded !== "" ? "  (degraded)" : "")
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+                            color: Colours.on.surfaceVariant
+                        }
+                        Row {
+                            width: parent.width
+                            spacing: 6
+                            Repeater {
+                                model: Power.profiles
+                                delegate: Rectangle {
+                                    required property string modelData
+                                    readonly property bool cur: Power.active === modelData
+                                    width: (parent.width - 12) / 3
+                                    height: 30
+                                    radius: 15
+                                    color: cur ? Colours.primary : Colours.surfaceContainerHigh
+                                    Behavior on color { ColorAnimation { duration: 140 } }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: Power.labels[parent.modelData] ?? parent.modelData
+                                        font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                                        color: parent.cur ? Colours.on.primary : Colours.on.surfaceVariant
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: Power.set(modelData)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // ---------- volume ----------
                     Column {
                         width: parent.width; spacing: 6
