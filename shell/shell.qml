@@ -10,6 +10,7 @@ import qs.modules.sidebar
 import qs.modules.notifications
 import qs.modules.dashboard
 import qs.modules.launcher
+import qs.modules.booru
 import Quickshell.Io
 
 ShellRoot {
@@ -23,6 +24,7 @@ ShellRoot {
     LazyLoader { active: Config.ready; component: NotificationPopup {} }
     LazyLoader { active: Config.ready; component: Dashboard {} }
     LazyLoader { active: Config.ready; component: Launcher {} }
+    LazyLoader { active: Config.ready; component: BooruPanel {} }
 
     // External control, for keybinds and for testing surfaces that are otherwise
     // only reachable by a mouse gesture:

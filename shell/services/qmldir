@@ -5,3 +5,4 @@ singleton Audio 1.0 Audio.qml
 singleton Brightness 1.0 Brightness.qml
 singleton Notifs 1.0 Notifs.qml
 singleton SysStats 1.0 SysStats.qml
+singleton Booru 1.0 Booru.qml

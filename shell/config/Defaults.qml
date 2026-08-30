@@ -18,7 +18,7 @@ QtObject {
             "topLeft":     { "enabled": true },
             "topCentre":   { "enabled": true },
             "topRight":    { "enabled": true },
-            "leftCentre":  { "enabled": false },
+            "leftCentre":  { "enabled": true, "edgeWidth": 8, "edgeSpan": 0.42, "width": 420 },
             "rightCentre": {
                 "enabled": true,
                 "edgeWidth": 8,      // px of screen edge that accepts the gesture
@@ -59,8 +59,17 @@ QtObject {
             "prefer": "saturation"
         },
         "booru": {
-            "site": "gelbooru",
-            "sites": ["gelbooru", "danbooru"],
+            // safebooru and yandere work with no account; gelbooru and danbooru
+            // need credentials filled in below or they return 401 / a CF challenge.
+            "site": "safebooru",
+            "sites": ["safebooru", "yandere", "gelbooru", "danbooru"],
+            "credentials": {
+                "gelbooru": { "apiKey": "", "userId": "" },
+                "danbooru": { "login": "", "apiKey": "" }
+            },
+            "pageSize": 40,
+            // Local blacklist, always on by default with a toggle in the panel.
+            // Danbooru counts these against its 2-tag cap; gelbooru does not.
             "blacklist": [],
             "blacklistEnabled": true
         },
