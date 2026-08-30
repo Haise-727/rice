@@ -728,6 +728,24 @@ Plumbing — invisible when right, very broken when wrong.
 
 All answered. Superseded by the locked-decisions table at the top of this doc and §35.
 
+# 26c. ⚠️ Lock screen: why qylock's locker was NOT adopted
+qylock's quickshell lockscreen uses **`WlSessionLock`** (`ext-session-lock-v1`) — the
+protocol that stranded this machine twice, requiring a hard power-off.
+
+The documented recovery, `hyprctl eval 'hl.clear_crashed_lockscreen()'`, **does not work
+here**: verified on Hyprland 0.56.2 it replies *"eval is only supported with the lua config
+manager"*, and we deliberately stayed on `.conf`. So a crashed session lock would have **no
+escape hatch at all** short of losing the session.
+
+Adopted instead:
+- **Runtime lock** (`Super+L`, sleep): Ashura's own overlay, which FAILS OPEN — if the shell
+  dies the lock dies with it. Escape hatch `ashura-unlock` (Ctrl+Alt+Shift+U, or from a TTY).
+- **Boot/login screen**: qylock's themes installed as **SDDM** themes, which is what they
+  actually are. SDDM manages them, so there is no lock-out risk, and this is where the
+  animated designs belong.
+
+Revisit qylock's locker only if we ever migrate to `hyprland.lua`, which restores `eval`.
+
 # 26b. Deferred polish (revisit, not blocking)
 - **Overview: rearrange windows within a workspace** — dragging inside one workspace
   snaps back because Hyprland is never told anything changed. Fix noted in
