@@ -945,6 +945,21 @@ mapping.
 <<< END
  OK to use matugen for the palette and gowall for image ops?
 
+### ref 3b — illogical-impulse UI details worth stealing (from user screenshots, 2026-08-30)
+- **Media hover popup**: album art + title + artist + `0:34 / 2:39`, and the **progress line is a
+  waveform that moves with the audio**, with a visualiser behind the whole popup. Distinctive —
+  worth reproducing.
+- **Desktop clock auto-places itself.** Confirmed mechanism: `scripts/images/least_busy_region.py`
+  analyses the wallpaper and picks the emptiest region, which is why it appears in different
+  corners. This is the one genuinely useful thing in their python venv — revisit if we want it
+  (needs pillow/numpy/opencv).
+- **Right sidebar** (their equivalent of our right-drag zone): uptime, quick-toggle pills
+  (wifi/bt/nightlight), **Notifications | Volume mixer** tabs, per-app volume sliders with
+  output/input device pickers, notification list with Silent/Clear, calendar, To Do.
+- **OSD**: single centred pill, e.g. "Brightness 70".
+- **Booru panel**: left side, tabbed, image grid, tag input at the bottom carrying the site
+  selector, an NSFW toggle and `/mode` `/clear` commands.
+
 ### ref 4 — Shanu-Kumawat/quickshell-overview ★ DIRECT HIT for §11.1
 https://github.com/Shanu-Kumawat/quickshell-overview
 - **Live window thumbnails — exactly what you asked for.** Not icons.
