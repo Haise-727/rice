@@ -48,9 +48,27 @@ Singleton {
         return out;
     }
 
+    // Label for the mixer. Several streams from one app (e.g. two Firefox tabs)
+    // are otherwise indistinguishable, so fall back to what the stream is playing,
+    // and failing that number the duplicates.
     function appName(n) {
         const p = n.properties;
-        return (p && (p["application.name"] || p["node.description"])) || n.name || "app";
+        const app = (p && (p["application.name"] || p["node.description"])) || n.name || "app";
+        const media = p && (p["media.name"] || p["media.title"]);
+        if (media && String(media).trim() !== "" && String(media) !== app) {
+            const m = String(media);
+            return app + " - " + (m.length > 22 ? m.slice(0, 21) + "…" : m);
+        }
+        // no track info: number same-named streams in list order
+        const same = root.streams.filter(o => {
+            const q = o.properties;
+            return ((q && (q["application.name"] || q["node.description"])) || o.name || "app") === app;
+        });
+        if (same.length > 1) {
+            const i = same.indexOf(n);
+            return app + " (" + (i + 1) + ")";
+        }
+        return app;
     }
 
     PwObjectTracker { objects: [Pipewire.defaultAudioSink, ...root.allStreams] }
