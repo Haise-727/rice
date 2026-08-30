@@ -45,7 +45,7 @@ Scope {
                 { name: "Wallpaper — pick",     hint: "choose a file",           act: () => Quickshell.execDetached(["waypaper"]) },
                 { name: "Clipboard history",    hint: "cliphist",                act: () => Quickshell.execDetached(["sh","-c","cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"]) },
                 { name: "Overview",             hint: "workspaces",              act: () => Quickshell.execDetached(["qs","ipc","-c","overview","call","overview","toggle"]) },
-                { name: "Sidebar",              hint: "controls + notifications", act: () => ZoneManager.open("rightCentre") },
+                { name: "Sidebar",              hint: "controls + notifications", act: () => deferOpen.restart() },
                 { name: "Screenshot — region",  hint: "grim + swappy",           act: () => Quickshell.execDetached(["sh","-c","grim -g \"$(slurp)\" - | swappy -f -"]) },
                 { name: "Screenshot — screen",  hint: "to clipboard",            act: () => Quickshell.execDetached(["sh","-c","grim - | wl-copy"]) },
                 { name: "Colour picker",        hint: "hyprpicker",              act: () => Quickshell.execDetached(["hyprpicker","-a"]) },
@@ -95,6 +95,14 @@ Scope {
             }
 
             onShownChanged: if (shown) { query = ""; sel = 0; input.forceActiveFocus(); }
+
+            // Opening another zone from inside run() races with closing the
+            // launcher, so defer it by a frame.
+            Timer {
+                id: deferOpen
+                interval: 60
+                onTriggered: ZoneManager.open("rightCentre")
+            }
 
             MouseArea {
                 anchors.fill: parent
