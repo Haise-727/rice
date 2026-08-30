@@ -11,6 +11,7 @@ import qs.modules.notifications
 import qs.modules.dashboard
 import qs.modules.launcher
 import qs.modules.booru
+import qs.modules.startup
 import Quickshell.Io
 
 ShellRoot {
@@ -19,12 +20,14 @@ ShellRoot {
 
     LazyLoader { active: Config.ready; component: Bar {} }
     LazyLoader { active: Config.ready; component: DesktopClock {} }
-    LazyLoader { active: Config.ready; component: EdgeTrigger {} }
+    LazyLoader { active: Config.ready; component: EdgeTrigger { zone: "rightCentre"; side: "right" } }
+    LazyLoader { active: Config.ready; component: EdgeTrigger { zone: "leftCentre";  side: "left"  } }
     LazyLoader { active: Config.ready; component: Sidebar {} }
     LazyLoader { active: Config.ready; component: NotificationPopup {} }
     LazyLoader { active: Config.ready; component: Dashboard {} }
     LazyLoader { active: Config.ready; component: Launcher {} }
     LazyLoader { active: Config.ready; component: BooruPanel {} }
+    LazyLoader { active: Config.ready; component: StartupWorkspace {} }
 
     // External control, for keybinds and for testing surfaces that are otherwise
     // only reachable by a mouse gesture:

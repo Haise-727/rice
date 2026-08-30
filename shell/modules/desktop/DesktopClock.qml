@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import qs.common
 import qs.config
 import qs.services
+import qs.zones
 
 // Large clock over the wallpaper, below windows.
 //
@@ -27,7 +28,8 @@ Scope {
             required property ShellScreen modelData
             screen: modelData
 
-            visible: Config.options.desktopClock.enabled
+            // hidden on the startup workspace, which draws its own clock
+            visible: Config.options.desktopClock.enabled && !ZoneManager.dashboardMode
             WlrLayershell.namespace: "ashura:desktopclock"
             WlrLayershell.layer: WlrLayer.Background
             exclusionMode: ExclusionMode.Ignore

@@ -6,15 +6,16 @@ import qs.common
 import qs.config
 import qs.zones
 
-// Right-MIDDLE edge trigger (not the full edge - the spec assigns the corners
-// and other edges to other zones).
+// A screen-edge strip that opens its zone. Reusable for any side.
 //
-// Three ways in, because this user's touchpad cannot drag:
-//   click       -> open the sidebar
-//   hover dwell -> open after `dwellMs` of resting on the strip
-//   drag        -> two-stage, short = session, full = sidebar
+// Three ways in, because this machine's touchpad cannot drag:
+//   click/tap   -> toggle the zone
+//   hover dwell -> open after dwellMs (0 disables; off by default)
+//   drag inward -> two-stage where the zone defines stage1/stage2
 Scope {
     id: root
+    required property string zone
+    required property string side          // "left" | "right"
 
     Variants {
         model: Quickshell.screens
@@ -24,19 +25,17 @@ Scope {
             required property ShellScreen modelData
             screen: modelData
 
-            visible: ZoneManager.isEnabled("rightCentre") && ZoneManager.zonesVisible
-            WlrLayershell.namespace: "ashura:edge-right"
+            readonly property var cfg: Config.options.zones[root.zone]
+            visible: ZoneManager.isEnabled(root.zone) && ZoneManager.zonesVisible
+
+            WlrLayershell.namespace: `ashura:edge-${root.side}`
             WlrLayershell.layer: WlrLayer.Top
             exclusionMode: ExclusionMode.Ignore
 
-            // vertically centred strip covering only the middle band
-            anchors { right: true }
-            implicitWidth: Config.options.zones.rightCentre.edgeWidth
-            implicitHeight: Math.round(modelData.height * Config.options.zones.rightCentre.edgeSpan)
+            anchors { left: root.side === "left"; right: root.side === "right" }
+            implicitWidth: cfg?.edgeWidth ?? 8
+            implicitHeight: Math.round(modelData.height * (cfg?.edgeSpan ?? 0.42))
             color: "transparent"
-
-            readonly property int stage1: Config.options.zones.rightCentre.stage1
-            readonly property int stage2: Config.options.zones.rightCentre.stage2
 
             MouseArea {
                 id: area
@@ -53,36 +52,35 @@ Scope {
                 onPressed: mouse => { startX = mouse.x; travel = 0; dragging = true; didDrag = false; }
                 onPositionChanged: mouse => {
                     if (!dragging) return;
-                    travel = Math.max(0, startX - mouse.x);
+                    // inward = leftwards from the right edge, rightwards from the left
+                    travel = Math.max(0, root.side === "right" ? startX - mouse.x : mouse.x - startX);
                     if (travel > 6) didDrag = true;
-                    ZoneManager.dragProgress = Math.min(1, travel / win.stage2);
+                    ZoneManager.dragProgress = Math.min(1, travel / (win.cfg?.stage2 ?? 190));
                 }
                 onReleased: {
                     dragging = false;
                     if (didDrag) {
-                        if (travel >= win.stage2)      ZoneManager.open("rightCentre");
-                        else if (travel >= win.stage1) Quickshell.execDetached(["wlogout"]);
+                        if (travel >= (win.cfg?.stage2 ?? 190)) ZoneManager.open(root.zone);
+                        else if (win.cfg?.stage1 !== undefined && travel >= win.cfg.stage1
+                                 && root.side === "right") Quickshell.execDetached(["wlogout"]);
                     } else {
-                        // plain click/tap - the touchpad-friendly path
-                        ZoneManager.toggle("rightCentre");
+                        ZoneManager.toggle(root.zone);
                     }
                     ZoneManager.dragProgress = 0;
                     travel = 0; didDrag = false;
                 }
                 onCanceled: { dragging = false; ZoneManager.dragProgress = 0; travel = 0; didDrag = false; }
 
-                // hover dwell: rest on the strip and it opens itself
                 Timer {
-                    id: dwell
-                    interval: Config.options.zones.rightCentre.dwellMs
+                    interval: win.cfg?.dwellMs ?? 0
                     running: area.containsMouse && !area.dragging
-                        && Config.options.zones.rightCentre.dwellMs > 0
-                        && !ZoneManager.isOpen("rightCentre")
-                    onTriggered: ZoneManager.open("rightCentre")
+                        && (win.cfg?.dwellMs ?? 0) > 0 && !ZoneManager.isOpen(root.zone)
+                    onTriggered: ZoneManager.open(root.zone)
                 }
 
                 Rectangle {
-                    anchors.right: parent.right
+                    anchors.right: root.side === "right" ? parent.right : undefined
+                    anchors.left: root.side === "left" ? parent.left : undefined
                     anchors.verticalCenter: parent.verticalCenter
                     width: 3
                     height: area.containsMouse || area.dragging ? parent.height * 0.75 : parent.height * 0.34

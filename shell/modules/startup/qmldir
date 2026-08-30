@@ -1,0 +1,2 @@
+module qs.modules.startup
+StartupWorkspace 1.0 StartupWorkspace.qml

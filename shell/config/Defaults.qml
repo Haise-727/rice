@@ -18,7 +18,7 @@ QtObject {
             "topLeft":     { "enabled": true },
             "topCentre":   { "enabled": true },
             "topRight":    { "enabled": true },
-            "leftCentre":  { "enabled": true, "edgeWidth": 8, "edgeSpan": 0.42, "width": 420 },
+            "leftCentre":  { "enabled": true, "edgeWidth": 8, "edgeSpan": 0.42, "stage2": 150, "dwellMs": 0, "width": 420 },
             "rightCentre": {
                 "enabled": true,
                 "edgeWidth": 8,      // px of screen edge that accepts the gesture
@@ -39,7 +39,9 @@ QtObject {
         "startupWorkspace": {
             "enabled": true,
             "fullscreen": true,           // hides bar + panels while focused
-            "widgets": ["profile", "clock", "player", "cava", "animation", "notifications", "battery"]
+            "widgets": ["profile", "clock", "player", "cava", "animation", "notifications", "battery"],
+            // gif/webp shown at the bottom; kurukuru is the caelestia spinner
+            "animation": "file:///home/haise/dotfiles-archive-20260825/caelestia-shell-fork-1.3.4/quickshell-caelestia-fork/assets/kurukuru.gif"
         },
         "wallpaper": {
             "dir": "~/Pictures/Wallpapers",
