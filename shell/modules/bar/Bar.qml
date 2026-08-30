@@ -6,9 +6,13 @@ import qs.common
 import qs.config
 import qs.zones
 
-// The top bar. Per spec it is ALWAYS visible at full opacity - no auto-hide,
-// no transparency - so it reserves an exclusive zone and never animates away,
-// except on the startup workspace where dashboardMode hides every zone.
+// Top bar: always visible at full opacity (no auto-hide, no transparency),
+// hidden only by dashboardMode on the startup workspace.
+//
+// Three zones, matching the spec's edge-zone model:
+//   top-left   resource button + workspaces
+//   top-centre clock + cava + media
+//   top-right  battery + wifi
 Scope {
     id: bar
 
@@ -27,41 +31,40 @@ Scope {
             anchors { top: true; left: true; right: true }
             implicitHeight: Config.options.bar.height
             exclusiveZone: Config.options.bar.height
-            color: "transparent"
+            color: Colours.surface
 
-            Rectangle {
-                anchors.fill: parent
-                color: Colours.surface
-                opacity: Config.options.bar.opacity
-
-                // ---- top-left zone ----
-                Row {
-                    id: leftZone
-                    anchors {
-                        left: parent.left; leftMargin: 10
-                        verticalCenter: parent.verticalCenter
-                    }
-                    spacing: 10
-
-                    ResourceButton {
-                        anchors.verticalCenter: parent.verticalCenter
-                        onActivated: ZoneManager.toggle("topLeft")
-                    }
-                    Workspaces {
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
+            // ---- top-left ----
+            Row {
+                anchors {
+                    left: parent.left; leftMargin: 10
+                    verticalCenter: parent.verticalCenter
                 }
-
-                // ---- top-centre / top-right land next ----
-                Text {
-                    anchors.centerIn: parent
-                    text: Qt.formatDateTime(clock.date, "ddd dd MMM  HH:mm")
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
-                    font.bold: true
-                    color: Colours.primary
+                spacing: 10
+                ResourceButton {
+                    anchors.verticalCenter: parent.verticalCenter
+                    onActivated: ZoneManager.toggle("topLeft")
                 }
-                SystemClock { id: clock; precision: SystemClock.Minutes }
+                Workspaces { anchors.verticalCenter: parent.verticalCenter }
+            }
+
+            // ---- top-centre ----
+            Row {
+                anchors.centerIn: parent
+                spacing: 12
+                ClockWidget {
+                    anchors.verticalCenter: parent.verticalCenter
+                    onDesktopClockToggled: console.log("ashura: desktop clock toggle (widget lands with the background zone)")
+                }
+                CavaBars   { anchors.verticalCenter: parent.verticalCenter }
+                MediaWidget { anchors.verticalCenter: parent.verticalCenter }
+            }
+
+            // ---- top-right ----
+            StatusIndicators {
+                anchors {
+                    right: parent.right; rightMargin: 12
+                    verticalCenter: parent.verticalCenter
+                }
             }
         }
     }

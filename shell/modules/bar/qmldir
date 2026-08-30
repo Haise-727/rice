@@ -2,3 +2,7 @@ module qs.modules.bar
 Bar 1.0 Bar.qml
 Workspaces 1.0 Workspaces.qml
 ResourceButton 1.0 ResourceButton.qml
+ClockWidget 1.0 ClockWidget.qml
+CavaBars 1.0 CavaBars.qml
+MediaWidget 1.0 MediaWidget.qml
+StatusIndicators 1.0 StatusIndicators.qml
