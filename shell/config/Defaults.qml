@@ -23,7 +23,7 @@ QtObject {
                 "enabled": true,
                 "edgeWidth": 8,      // px of screen edge that accepts the gesture
                 "edgeSpan": 0.42,    // fraction of screen height the strip covers (middle band)
-                "dwellMs": 450,      // hover this long to open; 0 disables
+                "dwellMs": 0,        // hover-to-open; 0 = click only (user preference)
                 "stage1": 60,        // drag this far -> session options
                 "stage2": 190,       // drag this far -> full sidebar
                 "width": 400         // sidebar width

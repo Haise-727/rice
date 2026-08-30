@@ -36,6 +36,7 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
 
             anchors { top: true; bottom: true; right: true }
+            margins.top: Config.options.bar.enabled ? Config.options.bar.height : 0
             implicitWidth: Config.options.zones.rightCentre.width
             color: "transparent"
 
@@ -51,11 +52,13 @@ Scope {
                 width: parent.width
                 height: parent.height
                 color: Colours.surfaceContainer
+                topLeftRadius: 18
+                bottomLeftRadius: 18
                 x: win.shown ? 0 : width
                 Behavior on x { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
 
                 Column {
-                    anchors { fill: parent; margins: 20; topMargin: Config.options.bar.height + 20 }
+                    anchors { fill: parent; margins: 20 }
                     spacing: 18
 
                     // ---------- header ----------
