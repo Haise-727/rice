@@ -9,7 +9,6 @@ import qs.modules.desktop
 import qs.modules.sidebar
 import qs.modules.notifications
 import qs.modules.dashboard
-import qs.modules.overview
 import Quickshell.Io
 
 ShellRoot {
@@ -22,7 +21,6 @@ ShellRoot {
     LazyLoader { active: Config.ready; component: Sidebar {} }
     LazyLoader { active: Config.ready; component: NotificationPopup {} }
     LazyLoader { active: Config.ready; component: Dashboard {} }
-    LazyLoader { active: Config.ready; component: Overview {} }
 
     // External control, for keybinds and for testing surfaces that are otherwise
     // only reachable by a mouse gesture:

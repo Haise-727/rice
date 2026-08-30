@@ -68,7 +68,7 @@ Row {
                 hoverEnabled: true
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 onClicked: mouse => {
-                    if (mouse.button === Qt.RightButton) ZoneManager.toggle("overview");
+                    if (mouse.button === Qt.RightButton) Quickshell.execDetached(["qs", "ipc", "-c", "overview", "call", "overview", "toggle"]);
                     else Hyprland.dispatch(`workspace ${pip.wsId}`);
                 }
                 onEntered: pip.scale = 1.12
