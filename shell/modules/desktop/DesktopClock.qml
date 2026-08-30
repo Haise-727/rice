@@ -8,13 +8,14 @@ import qs.services
 
 // Large clock over the wallpaper, below windows.
 //
-// Placement follows the quietest region of the wallpaper. It does NOT slide
-// between positions: animating x/y meant the clock travelled across the screen
-// (and briefly through the centre, because width is 0 until the text lays out).
-// It cross-fades instead - out, snap, in.
+// Placement follows the quietest region of the wallpaper and SLIDES to it.
+// The old double-move was not the animation: matugen used to write the palette
+// into the shell directory, which made quickshell reload the whole shell on every
+// wallpaper change - the clock reinitialised, then repositioned. The palette is
+// runtime JSON now, so one wallpaper change means one move.
 //
-// Text colour follows the region's brightness so it stays readable on light
-// wallpapers, which plain on-background did not.
+// Colour comes from the wallpaper's own Material You palette rather than plain
+// black/white, choosing the mode that contrasts with the region it sits on.
 Scope {
     id: root
 
@@ -32,68 +33,66 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
             anchors { top: true; bottom: true; left: true; right: true }
             color: "transparent"
-            mask: Region {}          // never intercept desktop clicks
+            mask: Region {}
 
-            // Applied position. Only updated while the clock is invisible.
-            property string place: Config.options.desktopClock.position === "auto"
+            readonly property string place: Config.options.desktopClock.position === "auto"
                 ? Wallpaper.anchor : Config.options.desktopClock.position
-            property real luma: Wallpaper.luma
-
-            readonly property string wanted: Config.options.desktopClock.position === "auto"
-                ? Wallpaper.anchor : Config.options.desktopClock.position
-
-            onWantedChanged: if (wanted !== place) reposition.restart()
-
-            SequentialAnimation {
-                id: reposition
-                NumberAnimation { target: clockCol; property: "opacity"; to: 0; duration: 180; easing.type: Easing.OutCubic }
-                ScriptAction { script: { win.place = win.wanted; win.luma = Wallpaper.luma; } }
-                NumberAnimation { target: clockCol; property: "opacity"; to: 1; duration: 260; easing.type: Easing.InCubic }
-            }
 
             readonly property bool atTop:    place.startsWith("top")
             readonly property bool atBottom: place.startsWith("bottom")
             readonly property bool atLeft:   place.endsWith("left")
             readonly property bool atRight:  place.endsWith("right")
 
-            // Light text on dark regions, dark text on light ones.
-            readonly property bool darkRegion: luma < 0.5
-            readonly property color fg: darkRegion ? "#ffffff" : "#101014"
-            readonly property color shadowCol: darkRegion ? Qt.rgba(0,0,0,0.55) : Qt.rgba(255,255,255,0.65)
+            // A bright region needs the LIGHT scheme's colours (which are dark inks);
+            // a dark region needs the DARK scheme's (which are light inks).
+            readonly property bool brightRegion: Wallpaper.luma >= 0.5
+            // not readonly: Behavior cannot attach to a readonly property
+            property color fg: Colours.role("primary", !brightRegion)
+            property color subFg: Colours.role("onSurfaceVariant", !brightRegion)
 
-            Column {
+            Behavior on fg    { ColorAnimation { duration: 500 } }
+            Behavior on subFg { ColorAnimation { duration: 500 } }
+
+            Item {
                 id: clockCol
-                spacing: -6
-                opacity: 1
+                width: childrenRect.width
+                height: childrenRect.height
                 readonly property int pad: 56
                 readonly property int topPad: pad + Config.options.bar.height
 
-                x: win.atLeft  ? pad
-                 : win.atRight ? parent.width - width - pad
-                 : (parent.width - width) / 2
-                y: win.atTop    ? topPad
-                 : win.atBottom ? parent.height - height - pad
-                 : (parent.height - height) / 2
+                // Only positioned once the text has laid out - width/height are 0 on
+                // the first frame, which previously threw x into the centre branch.
+                readonly property bool measured: width > 0 && height > 0
 
-                Text {
-                    anchors.right: win.atRight ? parent.right : undefined
-                    text: Qt.formatDateTime(dclock.date, "HH:mm")
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: Config.options.desktopClock.size
-                    font.bold: true
-                    color: win.fg
-                    style: Text.Outline
-                    styleColor: win.shadowCol
-                }
-                Text {
-                    anchors.right: win.atRight ? parent.right : undefined
-                    text: Qt.formatDateTime(dclock.date, "dddd, dd MMMM")
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: Math.round(Config.options.desktopClock.size * 0.18)
-                    color: win.fg
-                    opacity: 0.9
-                    style: Text.Outline
-                    styleColor: win.shadowCol
+                x: !measured ? win.width
+                 : win.atLeft  ? pad
+                 : win.atRight ? win.width - width - pad
+                 : (win.width - width) / 2
+                y: !measured ? win.height
+                 : win.atTop    ? topPad
+                 : win.atBottom ? win.height - height - pad
+                 : (win.height - height) / 2
+
+                Behavior on x { enabled: clockCol.measured; NumberAnimation { duration: 650; easing.type: Easing.InOutCubic } }
+                Behavior on y { enabled: clockCol.measured; NumberAnimation { duration: 650; easing.type: Easing.InOutCubic } }
+
+                Column {
+                    spacing: -8
+                    Text {
+                        anchors.right: win.atRight ? parent.right : undefined
+                        text: Qt.formatDateTime(dclock.date, "HH:mm")
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: Config.options.desktopClock.size
+                        font.bold: true
+                        color: win.fg
+                    }
+                    Text {
+                        anchors.right: win.atRight ? parent.right : undefined
+                        text: Qt.formatDateTime(dclock.date, "dddd, dd MMMM")
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: Math.round(Config.options.desktopClock.size * 0.18)
+                        color: win.subFg
+                    }
                 }
             }
             SystemClock { id: dclock; precision: SystemClock.Minutes }
