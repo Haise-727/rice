@@ -1055,7 +1055,7 @@ hover and drag behaviour, with a rule that opening one zone's panel collapses th
 ambient workspace stays, **5** if it's dropped.
 
 **Interaction rules**
-- Opening any zone's panel **collapses the others** (single `ZoneManager` state machine)
+- Opening any zone's panel **collapses the others** (single `ZoneManager` state machine) NOTE: idm multi widgets opening so long as they or not on the same end of screen (top and btm ok, top left and top right no)
 - Drags are **mouse-from-edge**, not touchpad gestures (3-finger swipe stays on workspaces)
 - Every zone individually toggleable in settings
 
