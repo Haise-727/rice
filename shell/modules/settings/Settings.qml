@@ -263,6 +263,18 @@ Scope {
                             }
                         }
                         Toggle { label: "Desktop clock"; path: "desktopClock.enabled"; value: Config.options.desktopClock.enabled }
+                        Toggle { label: "Live wallpaper (video)"; path: "wallpaper.live.enabled"; value: Config.options.wallpaper.live.enabled }
+                        Text {
+                            width: 600
+                            wrapMode: Text.Wrap
+                            text: "live: " + (LiveWallpaper.status === "" ? "idle" : LiveWallpaper.status)
+                                + "   ·   power profile: " + LiveWallpaper.profile
+                                + (Config.options.wallpaper.live.file === ""
+                                   ? "   ·   set wallpaper.live.file in config.json" : "")
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                            color: LiveWallpaper.profileAllows ? Colours.on.surfaceVariant : Colours.tertiary
+                            opacity: 0.8
+                        }
                         Choice {
                             label: "Desktop clock position"
                             path: "desktopClock.position"

@@ -57,20 +57,20 @@ Singleton {
 
     // Written via a process rather than FileView.setText: setText reported no
     // error but never touched the file, even with blockWrites false.
+    // Write via a fresh process each time, passing the JSON as an ARGUMENT rather
+    // than over stdin. A long-lived `cat > file` never sees EOF, so successive
+    // saves appended into the same handle and the file became a run of
+    // concatenated JSON objects instead of one document.
     function save() {
         suppressReload = true;
         const json = JSON.stringify(diffFromDefaults(root.options, Defaults.values), null, 2);
-        writer.command = ["sh", "-c", `cat > '${root.path}'`];
+        writer.running = false;
+        writer.command = ["sh", "-c", 'printf "%s\n" "$1" > "$2"', "sh", json, root.path];
         writer.running = true;
-        writer.write(json + "\n");
         unsuppress.restart();
     }
 
-    Process {
-        id: writer
-        onRunningChanged: if (!running) stdinEnabled = false
-        stdinEnabled: true
-    }
+    Process { id: writer }
     Timer { id: unsuppress; interval: 400; onTriggered: root.suppressReload = false }
 
     property bool suppressReload: false

@@ -45,8 +45,12 @@ QtObject {
         },
         "wallpaper": {
             "dir": "~/Pictures/Wallpapers",
-            "live": { "enabled": false, "backend": "mpvpaper" },
-            // user's rule: quiet = off, balance/performance = on
+            "live": {
+                "enabled": false,
+                "backend": "mpvpaper",   // mpvpaper plays any video/gif as the background
+                "file": ""               // absolute path to the video
+            },
+            // user's rule: quiet = off, balanced/performance = on
             "livePowerProfiles": ["balanced", "performance"]
         },
         "desktopClock": {
