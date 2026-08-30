@@ -39,6 +39,13 @@ QtObject {
             // user's rule: quiet = off, balance/performance = on
             "livePowerProfiles": ["balanced", "performance"]
         },
+        "desktopClock": {
+            "enabled": true,
+            "size": 96,
+            // "auto" follows the quietest region of the wallpaper; or pin one of
+            // top-left / top-right / bottom-left / bottom-right / middle-centre
+            "position": "auto"
+        },
         "palette": {
             "scheme": "scheme-tonal-spot",
             "prefer": "saturation"

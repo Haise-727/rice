@@ -53,7 +53,7 @@ Scope {
                 spacing: 12
                 ClockWidget {
                     anchors.verticalCenter: parent.verticalCenter
-                    onDesktopClockToggled: console.log("ashura: desktop clock toggle (widget lands with the background zone)")
+                    onDesktopClockToggled: Config.options.desktopClock.enabled = !Config.options.desktopClock.enabled
                 }
                 CavaBars   { anchors.verticalCenter: parent.verticalCenter }
                 MediaWidget { anchors.verticalCenter: parent.verticalCenter }
