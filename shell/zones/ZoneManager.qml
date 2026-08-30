@@ -23,8 +23,12 @@ Singleton {
         "leftCentre":   "left",
         "rightCentre":  "right",
         "bottomCentre": "bottom",
-        "bottomRight":  "bottom"
+        "bottomRight":  "bottom",
+        "session":      "right"
     })
+
+    // 0..1 while an edge drag is in progress, for surfaces that preview the pull
+    property real dragProgress: 0
 
     property var openZones: ({})          // zone id -> true
     property bool dashboardMode: false    // startup workspace focused
@@ -33,6 +37,9 @@ Singleton {
     signal zoneClosed(string zone)
 
     function isEnabled(zone) {
+        // "session" is reached by dragging the right edge; it has no config entry
+        // of its own and rides on rightCentre being enabled.
+        if (zone === "session") return Config.options.zones.rightCentre.enabled === true;
         const z = Config.options.zones[zone];
         return z !== undefined && z.enabled === true;
     }

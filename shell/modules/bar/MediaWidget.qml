@@ -17,7 +17,7 @@ Row {
 
     Text {
         anchors.verticalCenter: parent.verticalCenter
-        text: root.player?.isPlaying ? "" : ""      // pause / play glyphs
+        text: root.player?.isPlaying ? Icons.pause : Icons.play
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 11
         color: Colours.on.surfaceVariant

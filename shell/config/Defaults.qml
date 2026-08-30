@@ -19,7 +19,13 @@ QtObject {
             "topCentre":   { "enabled": true },
             "topRight":    { "enabled": true },
             "leftCentre":  { "enabled": false },
-            "rightCentre": { "enabled": true },
+            "rightCentre": {
+                "enabled": true,
+                "edgeWidth": 6,      // px of screen edge that accepts the drag
+                "stage1": 60,        // drag this far -> session options
+                "stage2": 190,       // drag this far -> full sidebar
+                "width": 400         // sidebar width
+            },
             "bottomCentre":{ "enabled": true },
             "bottomRight": { "enabled": true }
         },

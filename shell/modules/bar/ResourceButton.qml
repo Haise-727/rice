@@ -16,7 +16,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: ""                       // nerd font: cog
+        text: Icons.cog
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 12
         color: mouse.containsMouse ? Colours.primary : Colours.on.surfaceVariant

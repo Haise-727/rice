@@ -1,0 +1,3 @@
+module qs.modules.sidebar
+EdgeTrigger 1.0 EdgeTrigger.qml
+Sidebar 1.0 Sidebar.qml
