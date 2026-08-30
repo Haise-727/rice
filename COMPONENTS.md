@@ -747,6 +747,10 @@ Adopted instead:
 Revisit qylock's locker only if we ever migrate to `hyprland.lua`, which restores `eval`.
 
 # 26b. Deferred polish (revisit, not blocking)
+- **Sleep does not lock.** `before_sleep_cmd = loginctl lock-session` was removed from
+  `hypridle.conf` during the 2026-08-27 lockout fixes and never restored. The locker now
+  fails open and has an escape hatch, so it is safe to re-enable — just not done yet.
+  Also still absent: lock-on-idle (the hypridle listener is commented out, screen-off only).
 - **Overview: rearrange windows within a workspace** — dragging inside one workspace
   snaps back because Hyprland is never told anything changed. Fix noted in
   `~/.config/quickshell/overview/ASHURA-PATCHES.md`.
