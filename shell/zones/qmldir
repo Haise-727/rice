@@ -1,0 +1,2 @@
+module qs.zones
+singleton ZoneManager 1.0 ZoneManager.qml
