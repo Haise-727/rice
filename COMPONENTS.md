@@ -778,6 +778,7 @@ Every change gets logged here: what, where, why, how to revert.
 | 2026-08-30 | **Phase 2** | Named the shell **Ashura**; foundation (Config/Defaults/Colours/ZoneManager) | `~/rice/shell/` | git |
 | 2026-08-30 | **Phase 2** | Top bar: workspaces, clock, cava, media, VOL/BRI/BT/WIF/BAT | `~/rice/shell/modules/bar/` | git |
 | 2026-08-30 | **Phase 2** | Desktop clock with wallpaper-aware placement + contrast | `~/rice/shell/modules/desktop/` | git |
+| 2026-08-30 | **overview** | Adopted `quickshell-overview` (own instance, matugen-themed) instead of a hand-rolled one; patched a drag-to-close bin on branch `ashura` | `~/.config/quickshell/overview` | `git checkout main` there |
 | 2026-08-30 | **arch** | Palette moved OUT of the shell dir to runtime JSON - writing it was reloading the whole shell | `~/.config/ashura/palette.json` | git |
 
 ## Where everything lives
