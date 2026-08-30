@@ -14,6 +14,7 @@ Singleton {
     property int regionY: 0
     property int regionW: 0
     property int regionH: 0
+    property real luma: 0.0          // mean brightness of the chosen region, 0..1
 
     readonly property string stateFile: `${Quickshell.env("HOME")}/.config/ashura/current-wallpaper`
 
@@ -37,12 +38,13 @@ Singleton {
         stdout: SplitParser {
             onRead: line => {
                 const p = line.trim().split(/\s+/);
-                if (p.length === 5) {
-                    root.anchor  = p[0];
+                if (p.length >= 6) {
                     root.regionX = parseInt(p[1]);
                     root.regionY = parseInt(p[2]);
                     root.regionW = parseInt(p[3]);
                     root.regionH = parseInt(p[4]);
+                    root.luma    = parseFloat(p[5]);
+                    root.anchor  = p[0];   // set LAST: consumers react to this
                 }
             }
         }
