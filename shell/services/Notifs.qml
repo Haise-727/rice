@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
+import qs.config
 
 // Owns org.freedesktop.Notifications. This REPLACES mako - both cannot hold the
 // DBus name, so mako must be stopped or the server silently fails to register.
@@ -38,9 +39,11 @@ Singleton {
             n.tracked = true;                  // keep it in the list until dismissed
             if (root.dnd) return;              // still recorded, just not shown
             root.popups = [...root.popups, n];
-            // urgency 2 (critical) never auto-expires
-            if (n.urgency !== NotificationUrgency.Critical) {
-                expiry.createObject(root, { notif: n });
+            // Critical expires too, just slower - a toast that never leaves is
+            // worse than one you might miss. Set criticalNeverExpires to keep it.
+            const crit = n.urgency === NotificationUrgency.Critical;
+            if (!(crit && Config.options.notifications.criticalNeverExpires)) {
+                expiry.createObject(root, { notif: n, crit: crit });
             }
         }
     }
@@ -48,7 +51,12 @@ Singleton {
     property Component expiry: Component {
         Timer {
             property var notif: null
-            interval: notif && notif.expireTimeout > 0 ? notif.expireTimeout : 5000
+            property bool crit: false
+            interval: {
+                if (notif && notif.expireTimeout > 0) return notif.expireTimeout;
+                return crit ? Config.options.notifications.criticalTimeoutMs
+                            : Config.options.notifications.timeoutMs;
+            }
             running: true
             onTriggered: { root.expirePopup(notif); destroy(); }
         }

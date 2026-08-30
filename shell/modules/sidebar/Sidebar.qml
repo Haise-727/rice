@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Bluetooth
+import Quickshell.Services.Notifications
 import Quickshell.Networking
 import qs.common
 import qs.services
@@ -177,6 +178,57 @@ Scope {
                         }
                     }
 
+                    // ---------- per-app volume mixer ----------
+                    Column {
+                        width: parent.width
+                        spacing: 8
+                        visible: Audio.streams.length > 0
+
+                        Text {
+                            text: "Volume mixer"
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true
+                            color: Colours.on.surface
+                        }
+                        Repeater {
+                            model: Audio.streams
+                            delegate: Column {
+                                required property var modelData
+                                width: parent.width
+                                spacing: 4
+                                Text {
+                                    width: parent.width
+                                    text: Audio.appName(modelData) + "  " + Math.round((modelData.audio?.volume ?? 0) * 100) + "%"
+                                    font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                                    color: (modelData.audio?.muted ?? false) ? Colours.error : Colours.on.surfaceVariant
+                                    elide: Text.ElideRight
+                                }
+                                Rectangle {
+                                    id: appTrack
+                                    width: parent.width; height: 6; radius: 3
+                                    color: Colours.surfaceContainerHigh
+                                    Rectangle {
+                                        width: parent.width * ((modelData.audio?.muted ?? false)
+                                               ? 0 : (modelData.audio?.volume ?? 0))
+                                        height: parent.height; radius: 3
+                                        color: (modelData.audio?.muted ?? false) ? Colours.error : Colours.secondary
+                                        Behavior on width { NumberAnimation { duration: 120 } }
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent; anchors.margins: -6
+                                        onPressed: mouse => set(mouse.x)
+                                        onPositionChanged: mouse => { if (pressed) set(mouse.x); }
+                                        function set(px) {
+                                            const a = modelData.audio;
+                                            if (!a) return;
+                                            a.volume = Math.max(0, Math.min(1, px / appTrack.width));
+                                            if (a.muted && a.volume > 0) a.muted = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // ---------- notifications ----------
                     Row {
                         width: parent.width
@@ -214,7 +266,7 @@ Scope {
 
                     Rectangle {
                         width: parent.width
-                        height: 260
+                        height: 200
                         color: "transparent"
 
                         ListView {
@@ -229,15 +281,27 @@ Scope {
                                 height: nCol.implicitHeight + 18
                                 radius: 12
                                 color: Colours.surfaceContainerHigh
+                                // urgency tag: a coloured spine, matching the popup border
+                                Rectangle {
+                                    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+                                    width: 3
+                                    topLeftRadius: 12; bottomLeftRadius: 12
+                                    visible: modelData.urgency !== NotificationUrgency.Normal
+                                    color: modelData.urgency === NotificationUrgency.Critical
+                                        ? Colours.error : Colours.outline
+                                }
                                 Column {
                                     id: nCol
                                     anchors { left: parent.left; right: parent.right; margins: 10; verticalCenter: parent.verticalCenter }
                                     spacing: 2
                                     Text {
                                         width: parent.width
-                                        text: modelData.appName ?? ""
+                                        text: (modelData.urgency === NotificationUrgency.Critical ? "! " : "")
+                                            + (modelData.appName ?? "")
                                         font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 9
-                                        color: Colours.primary; elide: Text.ElideRight
+                                        color: modelData.urgency === NotificationUrgency.Critical
+                                            ? Colours.error : Colours.primary
+                                        elide: Text.ElideRight
                                     }
                                     Text {
                                         width: parent.width

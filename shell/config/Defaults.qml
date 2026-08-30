@@ -66,7 +66,9 @@ QtObject {
         },
         "notifications": {
             "width": 380,
-            "defaultTimeoutMs": 5000,
+            "timeoutMs": 5000,          // normal + low urgency
+            "criticalTimeoutMs": 12000, // critical: longer, but it DOES go away
+            "criticalNeverExpires": false,
             "dnd": false
         },
         "cava": {

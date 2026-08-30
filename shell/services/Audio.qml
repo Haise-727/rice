@@ -23,5 +23,35 @@ Singleton {
     function setVolume(v) { if (node) { node.volume = Math.max(0, Math.min(1, v)); if (node.muted && v > 0) node.muted = false; } }
     function toggleMute() { if (node) node.muted = !node.muted; }
 
-    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
+    // A node's `properties` and `audio` are only populated once it is TRACKED, so
+    // the tracker cannot depend on a filter that reads properties - that is a
+    // chicken-and-egg that leaves the mixer empty. Track every stream (isStream is
+    // readable untracked), then filter the tracked ones.
+    readonly property var allStreams: {
+        const out = [];
+        for (const n of (Pipewire.nodes?.values ?? [])) if (n.isStream) out.push(n);
+        return out;
+    }
+
+    // Per-application PLAYBACK streams. Capture streams (cava reading the monitor)
+    // are Stream/Input/Audio and must not appear, or the mixer lists the visualiser
+    // instead of the browser.
+    readonly property var streams: {
+        const out = [];
+        for (const n of root.allStreams) {
+            if (!n.audio) continue;
+            const cls = n.properties ? (n.properties["media.class"] ?? "") : "";
+            if (cls !== "" && cls !== "Stream/Output/Audio") continue;
+            if (cls === "") continue;                    // not yet resolved
+            out.push(n);
+        }
+        return out;
+    }
+
+    function appName(n) {
+        const p = n.properties;
+        return (p && (p["application.name"] || p["node.description"])) || n.name || "app";
+    }
+
+    PwObjectTracker { objects: [Pipewire.defaultAudioSink, ...root.allStreams] }
 }
