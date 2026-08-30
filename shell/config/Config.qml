@@ -9,7 +9,7 @@ import qs.config
 Singleton {
     id: root
 
-    readonly property string path: `${Quickshell.env("HOME")}/.config/rice/config.json`
+    readonly property string path: `${Quickshell.env("HOME")}/.config/ashura/config.json`
     property var options: Defaults.values
     property bool ready: false
 
