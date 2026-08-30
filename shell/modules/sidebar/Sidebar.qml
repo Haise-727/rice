@@ -67,7 +67,7 @@ Scope {
                         width: parent.width
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: "Uptime " + upt.pretty
+                            text: "Uptime " + Uptime.pretty
                             font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
                             color: Colours.on.surfaceVariant
                         }
@@ -375,23 +375,6 @@ Scope {
                 }
             }
 
-            // uptime
-            QtObject {
-                id: upt
-                property string pretty: "--"
-            }
-            FileView {
-                id: uptFile
-                path: "/proc/uptime"
-                onLoaded: {
-                    const s = parseFloat(text().split(" ")[0]);
-                    if (!isNaN(s)) {
-                        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
-                        upt.pretty = h > 0 ? `${h}h ${m}m` : `${m}m`;
-                    }
-                }
-            }
-            Timer { interval: 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: uptFile.reload() }
 
         }
     }

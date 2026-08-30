@@ -13,6 +13,7 @@ Text {
     font.family: "JetBrainsMono Nerd Font"
     font.pixelSize: 13
     font.bold: true
+    // bar is one of our own surfaces, so plain palette roles - same rule ClockText uses
     color: mouse.containsMouse ? Colours.on.surface : Colours.primary
     Behavior on color { ColorAnimation { duration: 120 } }
 

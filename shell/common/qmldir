@@ -1,3 +1,4 @@
 module qs.common
 singleton Colours 1.0 Colours.qml
 singleton Icons 1.0 Icons.qml
+ClockText 1.0 ClockText.qml

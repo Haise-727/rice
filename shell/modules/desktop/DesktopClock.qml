@@ -78,26 +78,12 @@ Scope {
                 Behavior on x { enabled: clockCol.measured; NumberAnimation { duration: 650; easing.type: Easing.InOutCubic } }
                 Behavior on y { enabled: clockCol.measured; NumberAnimation { duration: 650; easing.type: Easing.InOutCubic } }
 
-                Column {
-                    spacing: -8
-                    Text {
-                        anchors.right: win.atRight ? parent.right : undefined
-                        text: Qt.formatDateTime(dclock.date, "HH:mm")
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: Config.options.desktopClock.size
-                        font.bold: true
-                        color: win.fg
-                    }
-                    Text {
-                        anchors.right: win.atRight ? parent.right : undefined
-                        text: Qt.formatDateTime(dclock.date, "dddd, dd MMMM")
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: Math.round(Config.options.desktopClock.size * 0.18)
-                        color: win.subFg
-                    }
+                ClockText {
+                    size: Config.options.desktopClock.size
+                    surface: "wallpaper"
+                    alignRight: win.atRight
                 }
             }
-            SystemClock { id: dclock; precision: SystemClock.Minutes }
         }
     }
 }

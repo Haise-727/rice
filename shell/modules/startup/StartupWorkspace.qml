@@ -42,30 +42,24 @@ Scope {
             color: "transparent"
             mask: Region {}                          // never steal clicks
 
+            // The whole surface sits over the wallpaper, so every colour here has to
+            // follow the region's brightness - not just the clock.
+            readonly property bool brightBehind: Wallpaper.luma >= 0.5
+            readonly property color fg: Colours.role("onSurface", !brightBehind)
+            readonly property color fgDim: Colours.role("onSurfaceVariant", !brightBehind)
+            readonly property color fgAccent: Colours.role("primary", !brightBehind)
+            readonly property color panelBg: Colours.role("surfaceContainer", !brightBehind)
+
             Component.onCompleted: SysStats.acquire()
             Component.onDestruction: SysStats.release()
 
             // ---------- clock, top middle ----------
-            Column {
+            ClockText {
                 anchors { top: parent.top; topMargin: 60; horizontalCenter: parent.horizontalCenter }
-                spacing: -10
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: Qt.formatDateTime(clk.date, "HH:mm")
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 130
-                    font.bold: true
-                    color: Colours.primary
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: Qt.formatDateTime(clk.date, "dddd, dd MMMM")
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 20
-                    color: Colours.on.surfaceVariant
-                }
+                size: 130
+                surface: "wallpaper"          // drawn over the wallpaper, so contrast-aware
+                precision: SystemClock.Seconds
             }
-            SystemClock { id: clk; precision: SystemClock.Seconds }
 
             // ---------- profile, top left ----------
             Row {
@@ -73,12 +67,12 @@ Scope {
                 spacing: 14
                 Rectangle {
                     width: 56; height: 56; radius: 28
-                    color: Colours.primaryContainer
+                    color: win.fgAccent
                     Text {
                         anchors.centerIn: parent
                         text: (Quickshell.env("USER") ?? "?").charAt(0).toUpperCase()
                         font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 24; font.bold: true
-                        color: Colours.on.primaryContainer
+                        color: win.panelBg
                     }
                 }
                 Column {
@@ -87,28 +81,15 @@ Scope {
                     Text {
                         text: Quickshell.env("USER") ?? ""
                         font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 17; font.bold: true
-                        color: Colours.on.surface
+                        color: win.fg
                     }
                     Text {
-                        text: "up " + upt.pretty
+                        text: "up " + Uptime.pretty
                         font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
-                        color: Colours.on.surfaceVariant
+                        color: win.fgDim
                     }
                 }
             }
-            QtObject { id: upt; property string pretty: "--" }
-            FileView {
-                id: uptF
-                path: "/proc/uptime"
-                onLoaded: {
-                    const s = parseFloat(text().split(" ")[0]);
-                    if (!isNaN(s)) {
-                        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
-                        upt.pretty = h > 0 ? `${h}h ${m}m` : `${m}m`;
-                    }
-                }
-            }
-            Timer { interval: 60000; running: win.visible; repeat: true; triggeredOnStart: true; onTriggered: uptF.reload() }
 
             // ---------- battery + system, top right ----------
             Column {
@@ -127,7 +108,7 @@ Scope {
                         anchors.right: parent.right
                         text: modelData.k + "  " + modelData.v
                         font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
-                        color: Colours.on.surfaceVariant
+                        color: win.fgDim
                     }
                 }
             }
@@ -138,25 +119,20 @@ Scope {
                 spacing: 10
                 width: 460
 
-                readonly property var player: {
-                    const ps = Mpris.players.values;
-                    if (!ps || ps.length === 0) return null;
-                    return ps.find(p => p.isPlaying) ?? ps[0];
-                }
 
                 Text {
-                    text: parent.player ? (parent.player.trackTitle ?? "") : "nothing playing"
+                    text: Media.has ? Media.title : "nothing playing"
                     width: parent.width
                     font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; font.bold: true
-                    color: Colours.on.surface
+                    color: win.fg
                     elide: Text.ElideRight
                 }
                 Text {
-                    visible: parent.player !== null
-                    text: parent.player ? (parent.player.trackArtist ?? "") : ""
+                    visible: Media.has
+                    text: Media.artist
                     width: parent.width
                     font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
-                    color: Colours.on.surfaceVariant
+                    color: win.fgDim
                     elide: Text.ElideRight
                 }
 
@@ -174,7 +150,7 @@ Scope {
                             radius: 2
                             anchors.verticalCenter: parent.verticalCenter
                             height: Math.max(3, (Cava.values[index] ?? 0) / 100 * 46)
-                            color: Colours.primary
+                            color: win.fgAccent
                             opacity: 0.9
                             Behavior on height { NumberAnimation { duration: 60 } }
                         }
@@ -194,7 +170,7 @@ Scope {
                         ? Notifs.list.values.length + " notification" + (Notifs.list.values.length === 1 ? "" : "s")
                         : "no notifications"
                     font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true
-                    color: Colours.on.surfaceVariant
+                    color: win.fgDim
                 }
                 Repeater {
                     model: Math.min(3, Notifs.list.values.length)
@@ -204,8 +180,7 @@ Scope {
                         width: 380
                         height: nc.implicitHeight + 16
                         radius: 10
-                        color: Qt.rgba(Colours.surfaceContainer.r, Colours.surfaceContainer.g,
-                                       Colours.surfaceContainer.b, 0.75)
+                        color: Qt.rgba(win.panelBg.r, win.panelBg.g, win.panelBg.b, 0.8)
                         Column {
                             id: nc
                             anchors { left: parent.left; right: parent.right; margins: 10; verticalCenter: parent.verticalCenter }
@@ -214,13 +189,13 @@ Scope {
                                 width: parent.width
                                 text: parent.parent.n?.appName ?? ""
                                 font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 9
-                                color: Colours.primary; elide: Text.ElideRight
+                                color: win.fgAccent; elide: Text.ElideRight
                             }
                             Text {
                                 width: parent.width
                                 text: parent.parent.n?.summary ?? ""
                                 font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
-                                color: Colours.on.surface; elide: Text.ElideRight
+                                color: win.fg; elide: Text.ElideRight
                             }
                         }
                     }

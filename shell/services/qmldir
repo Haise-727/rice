@@ -8,3 +8,5 @@ singleton SysStats 1.0 SysStats.qml
 singleton Booru 1.0 Booru.qml
 singleton LiveWallpaper 1.0 LiveWallpaper.qml
 singleton Power 1.0 Power.qml
+singleton Uptime 1.0 Uptime.qml
+singleton Media 1.0 Media.qml

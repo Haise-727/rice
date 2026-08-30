@@ -1,35 +1,30 @@
 import QtQuick
 import Quickshell
-import Quickshell.Services.Mpris
+import qs.services
 import qs.common
 
 // Active player title + play/pause. Hidden when nothing is playing.
 Row {
     id: root
     spacing: 6
-    visible: player !== null
+    visible: Media.has
 
-    readonly property var player: {
-        const ps = Mpris.players.values;
-        if (!ps || ps.length === 0) return null;
-        return ps.find(p => p.isPlaying) ?? ps[0];
-    }
 
     Text {
         anchors.verticalCenter: parent.verticalCenter
-        text: root.player?.isPlaying ? Icons.pause : Icons.play
+        text: Media.playing ? Icons.pause : Icons.play
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 11
         color: Colours.on.surfaceVariant
         MouseArea {
             anchors.fill: parent; anchors.margins: -4
-            onClicked: if (root.player?.canTogglePlaying) root.player.togglePlaying()
+            onClicked: Media.toggle()
         }
     }
     Text {
         anchors.verticalCenter: parent.verticalCenter
         text: {
-            const t = root.player?.trackTitle ?? "";
+            const t = Media.title;
             return t.length > 32 ? t.slice(0, 31) + "…" : t;
         }
         font.family: "JetBrainsMono Nerd Font"
