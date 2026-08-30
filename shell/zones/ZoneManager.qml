@@ -24,7 +24,8 @@ Singleton {
         "rightCentre":  "right",
         "bottomCentre": "bottom",
         "bottomRight":  "bottom",
-        "session":      "right"
+        "session":      "right",
+        "overview":     "fullscreen"
     })
 
     // 0..1 while an edge drag is in progress, for surfaces that preview the pull
@@ -40,6 +41,7 @@ Singleton {
         // "session" is reached by dragging the right edge; it has no config entry
         // of its own and rides on rightCentre being enabled.
         if (zone === "session") return Config.options.zones.rightCentre.enabled === true;
+        if (zone === "overview") return true;
         const z = Config.options.zones[zone];
         return z !== undefined && z.enabled === true;
     }

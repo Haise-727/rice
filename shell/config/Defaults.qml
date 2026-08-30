@@ -64,6 +64,12 @@ QtObject {
             "blacklist": [],
             "blacklistEnabled": true
         },
+        "overview": {
+            "columns": 3,
+            // "live" = continuous capture (best looking, more RAM/GPU)
+            // "event" = refresh on window changes only
+            "previewMode": "live"
+        },
         "notifications": {
             "width": 380,
             "timeoutMs": 5000,          // normal + low urgency

@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.common
 import qs.config
+import qs.zones
 
 // Fixed set of workspace pips. The startup workspace (default 6) is highlighted
 // differently so it reads as "not an ordinary workspace".
@@ -65,8 +66,11 @@ Row {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                acceptedButtons: Qt.LeftButton
-                onClicked: Hyprland.dispatch(`workspace ${pip.wsId}`)
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) ZoneManager.toggle("overview");
+                    else Hyprland.dispatch(`workspace ${pip.wsId}`);
+                }
                 onEntered: pip.scale = 1.12
                 onExited: pip.scale = 1.0
             }
