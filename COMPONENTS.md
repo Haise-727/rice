@@ -728,6 +728,32 @@ Plumbing — invisible when right, very broken when wrong.
 
 All answered. Superseded by the locked-decisions table at the top of this doc and §35.
 
+# 26b. Deferred polish (revisit, not blocking)
+- **Desktop clock animation min-maxing** (2026-08-30): the slide works and no longer double-moves,
+  but easing/duration//fade interplay wants another pass. Currently 650ms InOutCubic on x/y and a
+  500ms colour cross-fade.
+- **Media widget shows while paused** - MPRIS keeps paused players registered. Fix when the media
+  popup is built, since the player-selection logic gets reworked then.
+- **Cava keeps running while music is paused** - reference-counted on widget visibility, not on
+  playback state.
+
+## 🧠 Hard-won QML/quickshell lessons (do not relearn these)
+1. **`Palette` is a built-in QtQuick type.** A singleton named `Palette` is silently shadowed and
+   every property reads `undefined`, with no error. Ours is `Colours`.
+2. **A property named `onFoo` is parsed as a signal handler.** Material You's `on_primary` roles
+   cannot be top-level properties - nest them (`Colours.on.primary`).
+3. **Children of a `Row`/`Column` may not use horizontal anchors.** A `MouseArea` with
+   `anchors.fill` inside a Row silently collapses it to zero width. Wrap the Row in the MouseArea.
+4. **`Behavior` cannot attach to a `readonly property`** - the shell fails to load entirely.
+5. **Anything written into the shell's config directory reloads the whole shell.** Generated files
+   (palettes, caches) must live elsewhere and be read at runtime.
+6. **Positioner children are 0x0 on the first frame.** Position bindings that use `width`/`height`
+   must be gated on a `measured` flag or they animate toward a wrong value.
+7. **Hyprland hides top-layer surfaces under fullscreen windows** - `hyprctl layers` shows `a: 0`
+   and `grim` captures only the wallpaper. Screenshot from a workspace with nothing fullscreen.
+8. **illogical-impulse's dispatchers are Hyprland 0.55 Lua** (`hl.dsp.focus{...}`) and are rejected
+   on a `.conf` setup. Translate to classic (`workspace 3`) when adapting their code.
+
 # 27. Checkpoint & Change Log
 
 Every change gets logged here: what, where, why, how to revert.
@@ -748,7 +774,11 @@ Every change gets logged here: what, where, why, how to revert.
 | 2026-08-30 | **Phase 0** | s2idle persisted via `mem-sleep-s2idle.service` (NOT a kernel param — no GRUB/Secure Boot risk) | `/etc/systemd/system/` | `systemctl disable mem-sleep-s2idle` |
 | 2026-08-30 | **Phase 0** | OSD: swayosd installed, vol/brightness/mute/caps rebound, styled | `keybinds.conf`, `~/.config/swayosd/` | `keybinds.conf.bak-osd` |
 | 2026-08-30 | **Phase 0** | Dotfiles tracked — adopted the pre-existing `~/.config` repo + whitelist gitignore | `~/.config/.git` | — |
-| 2026-08-30 | **Phase 1** | matugen palette pipeline + `set-theme`; gowall installed for image ops | `~/.config/matugen/`, `~/.config/rice/bin/` | revert commit |
+| 2026-08-30 | **Phase 1** | matugen palette pipeline + `set-theme`; gowall installed for image ops | `~/.config/matugen/`, `~/.config/ashura/bin/` | revert commit |
+| 2026-08-30 | **Phase 2** | Named the shell **Ashura**; foundation (Config/Defaults/Colours/ZoneManager) | `~/rice/shell/` | git |
+| 2026-08-30 | **Phase 2** | Top bar: workspaces, clock, cava, media, VOL/BRI/BT/WIF/BAT | `~/rice/shell/modules/bar/` | git |
+| 2026-08-30 | **Phase 2** | Desktop clock with wallpaper-aware placement + contrast | `~/rice/shell/modules/desktop/` | git |
+| 2026-08-30 | **arch** | Palette moved OUT of the shell dir to runtime JSON - writing it was reloading the whole shell | `~/.config/ashura/palette.json` | git |
 
 ## Where everything lives
 - **Active configs:** `~/.config/{hypr,waybar,mako,fuzzel}/`
