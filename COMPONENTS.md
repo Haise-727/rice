@@ -745,6 +745,10 @@ Every change gets logged here: what, where, why, how to revert.
 | 2026-08-27 | repo | Pushed to private GitHub `Haise-727/rice` | — | `gh repo delete` |
 | 2026-08-27 | cleanup | Removed `krabby-bin`; deleted orphaned `~/.cache/zen` (59M, browser not installed) | — | `yay -S krabby-bin` |
 | 2026-08-27 | spec | Round 3: mouse-drag, lofi stream, dolphin, uwsm, cava→top bar, desktop clock, multi-site booru | `COMPONENTS.md` §36 | git history |
+| 2026-08-30 | **Phase 0** | s2idle persisted via `mem-sleep-s2idle.service` (NOT a kernel param — no GRUB/Secure Boot risk) | `/etc/systemd/system/` | `systemctl disable mem-sleep-s2idle` |
+| 2026-08-30 | **Phase 0** | OSD: swayosd installed, vol/brightness/mute/caps rebound, styled | `keybinds.conf`, `~/.config/swayosd/` | `keybinds.conf.bak-osd` |
+| 2026-08-30 | **Phase 0** | Dotfiles tracked — adopted the pre-existing `~/.config` repo + whitelist gitignore | `~/.config/.git` | — |
+| 2026-08-30 | **Phase 1** | matugen palette pipeline + `set-theme`; gowall installed for image ops | `~/.config/matugen/`, `~/.config/rice/bin/` | revert commit |
 
 ## Where everything lives
 - **Active configs:** `~/.config/{hypr,waybar,mako,fuzzel}/`
