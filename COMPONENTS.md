@@ -729,6 +729,9 @@ Plumbing — invisible when right, very broken when wrong.
 All answered. Superseded by the locked-decisions table at the top of this doc and §35.
 
 # 26b. Deferred polish (revisit, not blocking)
+- **Overview: rearrange windows within a workspace** — dragging inside one workspace
+  snaps back because Hyprland is never told anything changed. Fix noted in
+  `~/.config/quickshell/overview/ASHURA-PATCHES.md`.
 - **Desktop clock animation min-maxing** (2026-08-30): the slide works and no longer double-moves,
   but easing/duration//fade interplay wants another pass. Currently 650ms InOutCubic on x/y and a
   500ms colour cross-fade.
