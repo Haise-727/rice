@@ -7,6 +7,7 @@ import qs.zones
 import qs.modules.bar
 import qs.modules.desktop
 import qs.modules.sidebar
+import qs.modules.notifications
 import Quickshell.Io
 
 ShellRoot {
@@ -17,6 +18,7 @@ ShellRoot {
     LazyLoader { active: Config.ready; component: DesktopClock {} }
     LazyLoader { active: Config.ready; component: EdgeTrigger {} }
     LazyLoader { active: Config.ready; component: Sidebar {} }
+    LazyLoader { active: Config.ready; component: NotificationPopup {} }
 
     // External control, for keybinds and for testing surfaces that are otherwise
     // only reachable by a mouse gesture:

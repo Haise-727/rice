@@ -177,13 +177,98 @@ Scope {
                         }
                     }
 
-                    Item { width: 1; height: 4 }
-                    Text {
-                        text: "Notifications, volume mixer and calendar land next."
+                    // ---------- notifications ----------
+                    Row {
                         width: parent.width
-                        font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
-                        color: Colours.on.surfaceVariant; opacity: 0.5
-                        wrapMode: Text.Wrap
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "Notifications"
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true
+                            color: Colours.on.surface
+                        }
+                        Item { width: parent.width - 240; height: 1 }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: Notifs.dnd ? "DND on" : "DND off"
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                            color: Notifs.dnd ? Colours.error : Colours.on.surfaceVariant
+                            MouseArea {
+                                anchors.fill: parent; anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Notifs.dnd = !Notifs.dnd
+                            }
+                        }
+                        Item { width: 12; height: 1 }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "Clear"
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                            color: Colours.primary
+                            MouseArea {
+                                anchors.fill: parent; anchors.margins: -6
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Notifs.dismissAll()
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 260
+                        color: "transparent"
+
+                        ListView {
+                            id: nList
+                            anchors.fill: parent
+                            clip: true
+                            spacing: 8
+                            model: Notifs.list
+                            delegate: Rectangle {
+                                required property var modelData
+                                width: nList.width
+                                height: nCol.implicitHeight + 18
+                                radius: 12
+                                color: Colours.surfaceContainerHigh
+                                Column {
+                                    id: nCol
+                                    anchors { left: parent.left; right: parent.right; margins: 10; verticalCenter: parent.verticalCenter }
+                                    spacing: 2
+                                    Text {
+                                        width: parent.width
+                                        text: modelData.appName ?? ""
+                                        font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 9
+                                        color: Colours.primary; elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        width: parent.width
+                                        text: modelData.summary ?? ""
+                                        font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11; font.bold: true
+                                        color: Colours.on.surface; elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        width: parent.width
+                                        visible: (modelData.body ?? "") !== ""
+                                        text: modelData.body ?? ""
+                                        font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10
+                                        color: Colours.on.surfaceVariant
+                                        wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight
+                                        textFormat: Text.PlainText
+                                    }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Notifs.dismiss(modelData)
+                                }
+                            }
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            visible: nList.count === 0
+                            text: "No notifications"
+                            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+                            color: Colours.on.surfaceVariant; opacity: 0.5
+                        }
                     }
                 }
             }

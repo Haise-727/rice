@@ -64,6 +64,11 @@ QtObject {
             "blacklist": [],
             "blacklistEnabled": true
         },
+        "notifications": {
+            "width": 380,
+            "defaultTimeoutMs": 5000,
+            "dnd": false
+        },
         "cava": {
             "enabled": true,
             "inBorders": false,
