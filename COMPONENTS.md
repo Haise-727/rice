@@ -1180,6 +1180,17 @@ GTK theming path. → **nautilus**. (`nemo` is the middle ground if nautilus pro
 Claude picks a reliable default station, **plus a station picker in the UI** so it's selectable.
 Local-files fallback if streams are unreliable.
 
+## 📌 PARKED — palette feels right, revisit once there's real UI
+2026-08-30: current palette (`scheme-tonal-spot` + `--prefer saturation`) looks good, but there's
+almost nothing on screen yet to judge it against. **Revisit after the bar and panels exist.**
+Knobs already exposed, no rebuild needed:
+- `RICE_SCHEME` — scheme-content · expressive · fidelity · fruit-salad · monochrome · neutral ·
+  rainbow · tonal-spot *(current)* · vibrant · smart
+- `RICE_PREFER` — darkness · lightness · **saturation** *(current)* · less-saturation · value
+- Try: `RICE_SCHEME=scheme-content ~/.config/rice/bin/set-theme`
+- If colours feel too muted once panels exist → `scheme-content` / `scheme-expressive` pull harder
+  from the wallpaper. Both become settings toggles in §30.
+
 ## 🔒 Final round answers (2026-08-27)
 | Item | Decision |
 |---|---|
