@@ -7,98 +7,141 @@ import Quickshell.Networking
 import Quickshell.Bluetooth
 import qs.common
 
-// Top-right cluster. Spec eventually wants only battery + wifi here with the rest
-// behind the right-edge drag zone, but these are the day-to-day readouts and the
-// drag zone doesn't exist yet, so they live here for now.
+// Top-right readouts. Each carries a short text tag as well as its glyph:
+// icons alone were not identifiable at 12px. Tags can be turned off later.
 Row {
     id: root
-    spacing: 12
+    spacing: 14
 
-    // Pipewire needs the sink bound before its audio properties are readable.
+    // Pipewire audio properties do not resolve until the node is tracked.
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
 
-    component Indicator: Row {
-        property string glyph: ""
-        property string label: ""
-        property color tint: Colours.on.surfaceVariant
-        spacing: 5
-        anchors.verticalCenter: parent?.verticalCenter ?? undefined
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text: parent.glyph
-            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
-            color: parent.tint
-        }
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            visible: parent.label !== ""
-            text: parent.label
-            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
-            color: parent.tint
-        }
+    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
+    readonly property int volPct: sinkAudio ? Math.round(sinkAudio.volume * 100) : -1
+    readonly property bool muted: sinkAudio?.muted ?? false
+
+    property int briPct: -1
+    Process {
+        id: briProc
+        running: true
+        command: ["sh", "-c", "echo $((100 * $(brightnessctl g) / $(brightnessctl m)))"]
+        stdout: SplitParser { onRead: d => { const v = parseInt(d); if (!isNaN(v)) root.briPct = v; } }
+    }
+    Timer { interval: 3000; running: true; repeat: true; onTriggered: briProc.running = true }
+
+    readonly property var btAdapter: Bluetooth.defaultAdapter ?? null
+    readonly property int btCount: (Bluetooth.devices?.values ?? []).filter(d => d.connected).length
+
+    readonly property var wifiDev: {
+        const ds = Networking.devices?.values ?? [];
+        return ds.find(d => d.type === DeviceType.Wifi && d.connected) ?? null;
+    }
+    readonly property int wifiPct: {
+        const nets = wifiDev?.networks?.values ?? [];
+        const a = nets.find(n => n.connected) ?? null;
+        if (!a) return -1;
+        // signalStrength is 0..1, NOT 0..100 - rounding it directly gave "1%".
+        const s = a.signalStrength;
+        return Math.round(s <= 1 ? s * 100 : s);
     }
 
-    // ---- volume ----
-    Indicator {
-        readonly property var sink: Pipewire.defaultAudioSink?.audio ?? null
-        readonly property int pct: sink ? Math.round(sink.volume * 100) : -1
-        glyph: !sink ? "" : sink.muted ? "" : pct > 50 ? "" : pct > 0 ? "" : ""
-        label: pct >= 0 && !(sink?.muted ?? false) ? pct + "%" : ""
-        tint: (sink?.muted ?? false) ? Colours.error : Colours.on.surfaceVariant
+    readonly property var bat: UPower.displayDevice
+    readonly property int batPct: bat ? Math.round(bat.percentage * 100) : -1
+    readonly property bool charging: bat?.state === UPowerDeviceState.Charging
+
+    // ---------- volume ----------
+    Row {
+        spacing: 4
+        anchors.verticalCenter: parent.verticalCenter
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.muted ? "" : root.volPct > 50 ? "" : ""
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+            color: root.muted ? Colours.error : Colours.on.surfaceVariant
+        }
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.volPct < 0 ? "--" : root.muted ? "mute" : root.volPct + "%"
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+            color: root.muted ? Colours.error : Colours.on.surfaceVariant
+        }
         MouseArea {
             anchors.fill: parent
-            onClicked: if (parent.sink) parent.sink.muted = !parent.sink.muted
+            onClicked: if (root.sinkAudio) root.sinkAudio.muted = !root.sinkAudio.muted
         }
     }
 
-    // ---- brightness ----
-    Indicator {
-        id: bright
-        property int pct: -1
-        glyph: ""
-        label: pct >= 0 ? pct + "%" : ""
-        Process {
-            id: brightProc
-            running: true
-            command: ["sh", "-c", "echo $((100 * $(brightnessctl g) / $(brightnessctl m)))"]
-            stdout: SplitParser { onRead: d => bright.pct = parseInt(d) }
+    // ---------- brightness ----------
+    Row {
+        spacing: 4
+        anchors.verticalCenter: parent.verticalCenter
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: ""
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+            color: Colours.on.surfaceVariant
         }
-        Timer { interval: 2000; running: true; repeat: true; onTriggered: brightProc.running = true }
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.briPct < 0 ? "--" : root.briPct + "%"
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+            color: Colours.on.surfaceVariant
+        }
     }
 
-    // ---- bluetooth ----
-    Indicator {
-        readonly property var adapter: Bluetooth.defaultAdapter ?? null
-        readonly property int connected: (Bluetooth.devices?.values ?? []).filter(d => d.connected).length
-        visible: adapter !== null
-        glyph: !(adapter?.enabled ?? false) ? "" : connected > 0 ? "" : ""
-        label: connected > 0 ? String(connected) : ""
-        tint: connected > 0 ? Colours.primary : Colours.on.surfaceVariant
+    // ---------- bluetooth ----------
+    Row {
+        spacing: 4
+        anchors.verticalCenter: parent.verticalCenter
+        visible: root.btAdapter !== null
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: ""
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+            color: root.btCount > 0 ? Colours.primary : Colours.on.surfaceVariant
+        }
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.btCount > 0 ? String(root.btCount) : "off"
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+            color: root.btCount > 0 ? Colours.primary : Colours.on.surfaceVariant
+        }
     }
 
-    // ---- wifi ----
-    Indicator {
-        readonly property var wifiDev: {
-            const ds = Networking.devices?.values ?? [];
-            return ds.find(d => d.type === DeviceType.Wifi && d.connected) ?? null;
+    // ---------- wifi ----------
+    Row {
+        spacing: 4
+        anchors.verticalCenter: parent.verticalCenter
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.wifiPct < 0 ? "" : ""
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+            color: root.wifiPct < 0 ? Colours.error : Colours.on.surfaceVariant
         }
-        readonly property int strength: {
-            const nets = wifiDev?.networks?.values ?? [];
-            const active = nets.find(n => n.connected) ?? null;
-            return active ? Math.round(active.signalStrength) : -1;
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.wifiPct < 0 ? "off" : root.wifiPct + "%"
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+            color: root.wifiPct < 0 ? Colours.error : Colours.on.surfaceVariant
         }
-        glyph: strength < 0 ? "睊" : strength > 70 ? "" : strength > 40 ? "" : strength > 15 ? "" : ""
-        label: strength >= 0 ? strength + "%" : ""
-        tint: strength < 0 ? Colours.error : Colours.on.surfaceVariant
     }
 
-    // ---- battery ----
-    Indicator {
-        readonly property var bat: UPower.displayDevice
-        readonly property int pct: bat ? Math.round(bat.percentage * 100) : -1
-        readonly property bool charging: bat?.state === UPowerDeviceState.Charging
-        glyph: charging ? "" : pct > 80 ? "" : pct > 60 ? "" : pct > 40 ? "" : pct > 20 ? "" : ""
-        label: pct >= 0 ? pct + "%" : ""
-        tint: charging ? Colours.tertiary : pct <= 15 ? Colours.error : Colours.on.surfaceVariant
+    // ---------- battery ----------
+    Row {
+        spacing: 4
+        anchors.verticalCenter: parent.verticalCenter
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.charging ? "" : root.batPct > 80 ? "" : root.batPct > 60 ? ""
+                : root.batPct > 40 ? "" : root.batPct > 20 ? "" : ""
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+            color: root.charging ? Colours.tertiary : root.batPct <= 15 ? Colours.error : Colours.on.surfaceVariant
+        }
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.batPct < 0 ? "--" : root.batPct + "%"
+            font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
+            color: root.charging ? Colours.tertiary : root.batPct <= 15 ? Colours.error : Colours.on.surfaceVariant
+        }
     }
 }
