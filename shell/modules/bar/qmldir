@@ -1,0 +1,4 @@
+module qs.modules.bar
+Bar 1.0 Bar.qml
+Workspaces 1.0 Workspaces.qml
+ResourceButton 1.0 ResourceButton.qml
