@@ -21,7 +21,9 @@ QtObject {
             "leftCentre":  { "enabled": false },
             "rightCentre": {
                 "enabled": true,
-                "edgeWidth": 6,      // px of screen edge that accepts the drag
+                "edgeWidth": 8,      // px of screen edge that accepts the gesture
+                "edgeSpan": 0.42,    // fraction of screen height the strip covers (middle band)
+                "dwellMs": 450,      // hover this long to open; 0 disables
                 "stage1": 60,        // drag this far -> session options
                 "stage2": 190,       // drag this far -> full sidebar
                 "width": 400         // sidebar width

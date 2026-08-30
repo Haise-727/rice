@@ -2,10 +2,10 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.UPower
-import Quickshell.Services.Pipewire
 import Quickshell.Networking
 import Quickshell.Bluetooth
 import qs.common
+import qs.services
 
 // Top-right readouts.
 //
@@ -18,28 +18,11 @@ Row {
     id: root
     spacing: 14
 
-    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
+    // ---------- data (shared services, so bar and sidebar cannot disagree) ----------
+    readonly property int volPct: Audio.percent
+    readonly property bool muted: Audio.muted
 
-    // ---------- data ----------
-    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
-    readonly property int volPct: sinkAudio ? Math.round(sinkAudio.volume * 100) : -1
-    readonly property bool muted: sinkAudio?.muted ?? false
-
-    // Brightness is read straight from sysfs rather than by shelling out to
-    // brightnessctl on a timer - that was the 1-2s lag.
-    property int briRaw: -1
-    property int briMax: 100
-    readonly property int briPct: briRaw < 0 ? -1 : Math.round(briRaw * 100 / briMax)
-    FileView {
-        id: briFile
-        path: "/sys/class/backlight/nvidia_0/brightness"
-        onLoaded: { const v = parseInt(text()); if (!isNaN(v)) root.briRaw = v; }
-    }
-    FileView {
-        path: "/sys/class/backlight/nvidia_0/max_brightness"
-        onLoaded: { const v = parseInt(text()); if (!isNaN(v) && v > 0) root.briMax = v; }
-    }
-    Timer { interval: 200; running: true; repeat: true; onTriggered: briFile.reload() }
+    readonly property int briPct: Brightness.percent
 
     readonly property int btCount: (Bluetooth.devices?.values ?? []).filter(d => d.connected).length
     readonly property bool btOn: Bluetooth.defaultAdapter?.enabled ?? false
@@ -84,7 +67,7 @@ Row {
         implicitWidth: volEntry.implicitWidth
         implicitHeight: volEntry.implicitHeight
         cursorShape: Qt.PointingHandCursor
-        onClicked: if (root.sinkAudio) root.sinkAudio.muted = !root.sinkAudio.muted
+        onClicked: Audio.toggleMute()
         Entry {
             id: volEntry
             tag: "VOL"

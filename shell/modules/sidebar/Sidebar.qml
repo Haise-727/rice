@@ -4,10 +4,10 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import Quickshell.Services.Pipewire
 import Quickshell.Bluetooth
 import Quickshell.Networking
 import qs.common
+import qs.services
 import qs.config
 import qs.zones
 
@@ -45,7 +45,6 @@ Scope {
                 onCleared: ZoneManager.close("rightCentre")
             }
 
-            PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
 
             Rectangle {
                 id: panel
@@ -89,7 +88,7 @@ Scope {
                             model: [
                                 { glyph: Icons.wifi, on: (Networking.wifiEnabled ?? false), act: "wifi" },
                                 { glyph: Icons.bluetooth, on: (Bluetooth.defaultAdapter?.enabled ?? false), act: "bt" },
-                                { glyph: Icons.volHigh, on: !(Pipewire.defaultAudioSink?.audio?.muted ?? false), act: "mute" }
+                                { glyph: Audio.muted ? Icons.volMute : Icons.volHigh, on: !Audio.muted, act: "mute" }
                             ]
                             delegate: Rectangle {
                                 required property var modelData
@@ -112,8 +111,7 @@ Scope {
                                         else if (modelData.act === "bt")
                                             Quickshell.execDetached(["bluetoothctl", "power",
                                                 (Bluetooth.defaultAdapter?.enabled ?? false) ? "off" : "on"]);
-                                        else if (Pipewire.defaultAudioSink?.audio)
-                                            Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink.audio.muted;
+                                        else Audio.toggleMute();
                                     }
                                 }
                             }
@@ -124,28 +122,28 @@ Scope {
                     Column {
                         width: parent.width; spacing: 6
                         Text {
-                            text: "Volume  " + (Pipewire.defaultAudioSink?.audio
-                                  ? Math.round(Pipewire.defaultAudioSink.audio.volume * 100) + "%" : "--")
+                            text: "Volume  " + (!Audio.ready ? "--" : Audio.muted ? "muted" : Audio.percent + "%")
                             font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
-                            color: Colours.on.surfaceVariant
+                            color: Audio.muted ? Colours.error : Colours.on.surfaceVariant
                         }
                         Rectangle {
                             id: volTrack
                             width: parent.width; height: 8; radius: 4
                             color: Colours.surfaceContainerHigh
                             Rectangle {
-                                width: parent.width * (Pipewire.defaultAudioSink?.audio?.volume ?? 0)
+                                // Audio.effective is 0 while muted, so muting visibly
+                                // collapses the slider instead of leaving a stale fill.
+                                width: parent.width * Audio.effective
                                 height: parent.height; radius: 4
-                                color: Colours.primary
+                                color: Audio.muted ? Colours.error : Colours.primary
+                                Behavior on width { NumberAnimation { duration: 140 } }
+                                Behavior on color { ColorAnimation { duration: 140 } }
                             }
                             MouseArea {
                                 anchors.fill: parent; anchors.margins: -8
                                 onPressed: mouse => setVol(mouse.x)
                                 onPositionChanged: mouse => { if (pressed) setVol(mouse.x); }
-                                function setVol(px) {
-                                    const a = Pipewire.defaultAudioSink?.audio;
-                                    if (a) a.volume = Math.max(0, Math.min(1, px / volTrack.width));
-                                }
+                                function setVol(px) { Audio.setVolume(px / volTrack.width); }
                             }
                         }
                     }
@@ -154,7 +152,7 @@ Scope {
                     Column {
                         width: parent.width; spacing: 6
                         Text {
-                            text: "Brightness  " + (bri.pct >= 0 ? bri.pct + "%" : "--")
+                            text: "Brightness  " + (Brightness.percent >= 0 ? Brightness.percent + "%" : "--")
                             font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11
                             color: Colours.on.surfaceVariant
                         }
@@ -163,7 +161,7 @@ Scope {
                             width: parent.width; height: 8; radius: 4
                             color: Colours.surfaceContainerHigh
                             Rectangle {
-                                width: parent.width * Math.max(0, bri.pct) / 100
+                                width: parent.width * Math.max(0, Brightness.percent) / 100
                                 height: parent.height; radius: 4
                                 color: Colours.tertiary
                             }
@@ -171,10 +169,7 @@ Scope {
                                 anchors.fill: parent; anchors.margins: -8
                                 onPressed: mouse => setBri(mouse.x)
                                 onPositionChanged: mouse => { if (pressed) setBri(mouse.x); }
-                                function setBri(px) {
-                                    const p = Math.max(1, Math.min(100, Math.round(px / briTrack.width * 100)));
-                                    Quickshell.execDetached(["brightnessctl", "set", p + "%"]);
-                                }
+                                function setBri(px) { Brightness.setPercent(px / briTrack.width * 100); }
                             }
                         }
                     }
@@ -208,14 +203,6 @@ Scope {
             }
             Timer { interval: 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: uptFile.reload() }
 
-            // brightness readout
-            QtObject { id: bri; property int pct: -1 }
-            FileView {
-                id: briF
-                path: "/sys/class/backlight/nvidia_0/brightness"
-                onLoaded: { const v = parseInt(text()); if (!isNaN(v)) bri.pct = Math.round(v * 100 / 100); }
-            }
-            Timer { interval: 300; running: true; repeat: true; onTriggered: briF.reload() }
         }
     }
 }

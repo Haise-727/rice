@@ -1,3 +1,5 @@
 module qs.services
 singleton Cava 1.0 Cava.qml
 singleton Wallpaper 1.0 Wallpaper.qml
+singleton Audio 1.0 Audio.qml
+singleton Brightness 1.0 Brightness.qml
