@@ -13,6 +13,7 @@ import qs.modules.launcher
 import qs.modules.booru
 import qs.modules.startup
 import qs.modules.settings
+import qs.modules.lock
 import Quickshell.Io
 
 ShellRoot {
@@ -30,10 +31,19 @@ ShellRoot {
     LazyLoader { active: Config.ready; component: BooruPanel {} }
     LazyLoader { active: Config.ready; component: StartupWorkspace {} }
     LazyLoader { active: Config.ready; component: Settings {} }
+    Lock { id: lockScreen }
 
     // External control, for keybinds and for testing surfaces that are otherwise
     // only reachable by a mouse gesture:
     //   qs ipc call zone toggle rightCentre
+    // Lock control. `ashura-unlock` calls unlock() from a TTY if anything goes wrong.
+    IpcHandler {
+        target: "lock"
+        function lock(): string { lockScreen.lock(); return "locked"; }
+        function unlock(): string { lockScreen.unlock(); return "unlocked"; }
+        function state(): string { return lockScreen.locked ? "locked" : "unlocked"; }
+    }
+
     IpcHandler {
         target: "zone"
         function toggle(name: string): string { ZoneManager.toggle(name); return ZoneManager.isOpen(name) ? "open" : "closed"; }
