@@ -204,6 +204,54 @@ Kept here so they are not lost. Nothing below is committed.
 
 ---
 
+## F — Found by audit (2026-08-31)
+
+Verified against the code, not assumed. Ordered by how wrong they are.
+
+### Bugs (we promise something and do not deliver it)
+- [ ] **Notification actions are advertised but never rendered.** `Notifs.qml` sets
+      `actionsSupported: true`, so apps attach action buttons — and nothing in the
+      popup or sidebar draws them. The test notification carries
+      `Test1=I got it!` / `Test2=Another action` and neither is clickable. Either
+      render them or stop claiming support.
+
+### Inert things that look interactive
+- [ ] **Only the volume readout responds to input.** BRI, BT, WIF and BAT are dead
+      labels. Wanted: click BT/WIF to open their pickers, click BAT for power
+      profile, and **scroll over VOL/BRI to adjust** — the standard bar idiom, and
+      the services already exist behind them.
+- [ ] **Workspace pills**: no scroll-to-switch, and no drop target — dragging a
+      window onto a pill should move it there.
+
+### Tooling we need before packaging anything
+- [ ] **`ashura doctor`** — verify every binary the rice shells out to: grim, slurp,
+      swappy, wf-recorder, hyprpicker, cliphist, app2unit, playerctl, wpctl,
+      matugen, awww, ydotool. We have been bitten twice already by commands that
+      quietly stopped existing (the caelestia gesture, the makoctl bind). Anything
+      released for other people needs this, and it should also flag config that
+      points at missing binaries.
+- [ ] **Keybind conflict detector** — 119 binds. The `Super+N` shadowing bug was
+      found by hand; a checker that flags duplicate and shadowed combos would have
+      caught it for free. Pairs naturally with the cheatsheet overlay.
+- [ ] **Bind usage stats** — log which binds actually fire, so after a few weeks
+      the dead ones can be pruned. Worth more than usual here, since the Alt key
+      does not work on this machine and those binds can never fire.
+
+### Smaller improvements
+- [ ] **Workspace peek** — hover a pill for a live thumbnail. `ScreencopyView` is
+      already used by the overview, so the hard part is done.
+- [ ] **Lock screen: media controls and a notification count.** Right now you lock,
+      music keeps playing, and you cannot skip a track without unlocking.
+- [ ] **Notification history survives a shell restart** (currently in-memory only).
+- [ ] **Screenshot history** — recent captures with one-click re-copy.
+- [ ] **Verify multi-monitor.** Surfaces use `Variants`, but this has only ever run
+      on one screen. Worth testing before you dock, not after.
+
+**Already built, do not rebuild:** per-app volume mixer (sidebar), calendar and
+dashboard tabs, contrast-aware desktop clock.
+
+---
+
 ## E — Visionary directions (2026-08-31)
 
 **The thesis:** every rice *displays* things. Almost none of them *know* things.
