@@ -5,10 +5,11 @@ import QtQuick
 // so a missing key is always safe and the file is the documentation.
 QtObject {
     readonly property var values: ({
-        // Audio. maxVolume is a multiplier: 1.5 lets output boost to 150%.
-        // PipeWire allows software gain above 100%; past ~150% clipping is audible.
+        // Audio. maxVolume is a multiplier: 2.5 lets output boost to 250%.
+        // This is software gain in PipeWire, not extra headroom - anything much
+        // past ~150% will clip on quiet-mastered sources before it gets louder.
         audio: {
-            maxVolume: 1.5
+            maxVolume: 2.5
         },
         "bar": {
             "enabled": true,
