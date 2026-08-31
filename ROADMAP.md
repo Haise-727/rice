@@ -218,27 +218,44 @@ even the power profile. One action reconfigures everything instead of you settin
 six things by hand. Cheap to build once C exists, because the palette and
 wallpaper machinery is already there.
 
-### E2 — Workspace = project  ★ the strongest idea here
+### E2 — Workspace = project  ★ ACCEPTED 2026-08-31 — lives inside the dev cockpit
+**Deferred until the cockpit exists**, since it is the cockpit that knows about
+repos. Build only once B is solid, and to a plan agreed first - the value is in
+doing it properly, not early.
+
 Bind a workspace to a repo. Enter ws3 and: the cockpit filters to that repo, a
 terminal opens at its path, time accrues to *that project*, its wallpaper and
 palette load. Projects become first-class citizens of the window manager rather
 than folders you happen to `cd` into. This is the piece that ties A, B and C into
 one thing instead of three panels, and nothing else out there does it.
 
-### E3 — Zones as a framework, not as drawers
+### ~~E3 — Zones as a framework~~ — DECLINED 2026-08-31
+Not worth the abstraction cost to expose as a service. The zone system still ships
+as its own package per the packaging decision, but built for Ashura's needs rather
+than generalised for third parties.
+
+<details><summary>original idea</summary>
+
 The packaging decision above implies this: a zone is declared by a small manifest
 (edge, stages, content component) and appears. Ashura then becomes *a consumer of
 its own framework*. That reframes the release from "my drawers" to "an
 edge-gesture framework for quickshell" — which is a real gap in that ecosystem,
 and a far better thing to put your name on.
+</details>
 
-### E4 — A command palette for the machine
+### ~~E4 — Command palette for the machine~~ — DECLINED 2026-08-31
+Too broad: either it fails to cover enough to be trusted, or it covers so much
+that nobody knows what to reach for. **The keybind cheatsheet therefore stays a
+standalone overlay** (see P0), rather than a view over a palette that will not exist.
+
+<details><summary>original idea</summary>
+
 One fuzzy surface over windows, workspaces, repos, containers, ports, files,
 settings and keybinds — that also *acts*: "kill port 3000", "prune docker",
 "rename ws3 study", "wallpaper dark". VSCode's Ctrl+Shift+P, but for the whole
 system. The launcher is already most of the input half; the cockpit's data layer
-is most of the query half. Note this **subsumes the keybind cheatsheet** — the
-cheatsheet becomes one view over the palette rather than a separate overlay.
+is most of the query half.
+</details>
 
 ### E5 — Busy-ness awareness: what is this machine doing?
 Track long-running work — builds, `pacman`, ffmpeg, downloads, Claude Code

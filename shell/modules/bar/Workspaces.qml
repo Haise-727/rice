@@ -69,6 +69,10 @@ Row {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 onClicked: mouse => {
                     if (mouse.button === Qt.RightButton) Quickshell.execDetached(["qs", "ipc", "-c", "overview", "call", "overview", "toggle"]);
+                    // Under a Lua config, classic dispatchers are rejected over IPC -
+                    // `hyprctl dispatch workspace 3` errors. Branch on usingLua so this
+                    // keeps working if the config is ever rolled back to .conf.
+                    else if (Hyprland.usingLua) Hyprland.dispatch(`hl.dsp.focus({workspace = ${pip.wsId}})`);
                     else Hyprland.dispatch(`workspace ${pip.wsId}`);
                 }
                 onEntered: pip.scale = 1.12

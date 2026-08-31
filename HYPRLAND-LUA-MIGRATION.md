@@ -58,6 +58,35 @@ removals below.
 - `require` resolves relative to the config file's directory - no `package.path`
   needed for the real config.
 
+## ⚠️ Classic dispatchers do NOT survive over IPC (found 2026-08-31)
+
+This was listed as "expected to keep working, verify before relying on it" and was
+not verified. It is false:
+
+```
+$ hyprctl dispatch workspace 2
+error: [string "return hl.dispatch(workspace 2)"]:1: ')' expected near '2'
+$ hyprctl dispatch 'hl.dsp.focus({workspace = 2})'
+ok
+```
+
+Under a Lua config `hyprctl dispatch` wraps its argument in `hl.dispatch(...)`, so
+every classic dispatcher sent over IPC fails. Anything outside hyprland.lua that
+dispatches had to be updated:
+
+| Broke | Symptom | Fix |
+|---|---|---|
+| `Workspaces.qml` | clicking a workspace pill did nothing | branch on `Hyprland.usingLua` |
+| `hypridle.conf` | **screen stopped blanking on idle** | `hyprctl dispatch 'hl.dsp.dpms("off")'` |
+| the 55%x70% resize bind | silently dead | measure the monitor in Lua, no hyprctl |
+
+`Hyprland.usingLua` is exposed by quickshell, so QML can branch and keep working
+across a rollback to `.conf`. The overview repo already does this - worth copying
+its pattern rather than hardcoding the Lua form.
+
+**Lesson:** "verify before relying on it" needs to become an actual test, not a
+note. Anything that shells out to `hyprctl dispatch` is suspect after this change.
+
 ## Still to check by hand
 
 State comparison cannot prove runtime behaviour for these:
