@@ -36,8 +36,11 @@ These do not make the rice unique; they make it not-annoying. Build first.
       `qps` is bound but it is a separate GTK app, not part of the rice.
 - [ ] **Power/logout surface** — right-edge drag should reveal it with a gif
       (§15), not shell out to `wlogout`.
-- [x] **ACCEPTED** — **Keybind cheatsheet overlay**. 119 binds and a dead Alt key
-      on this machine; a searchable overlay is navigation, not decoration.
+- [x] **ACCEPTED, and upgraded to a real manager in Settings** — not just a
+      read-only overlay. Search binds by key or by action, see conflicts and
+      shadowed combos inline, and edit them. Same inspector-with-actions shape as
+      E4: show the true state, act on the row. 119 binds and a dead Alt key on
+      this machine make this navigation, not decoration.
 
 ---
 
@@ -224,18 +227,18 @@ Verified against the code, not assumed. Ordered by how wrong they are.
       window onto a pill should move it there.
 
 ### Tooling we need before packaging anything
-- [ ] **`ashura doctor`** — verify every binary the rice shells out to: grim, slurp,
-      swappy, wf-recorder, hyprpicker, cliphist, app2unit, playerctl, wpctl,
-      matugen, awww, ydotool. We have been bitten twice already by commands that
-      quietly stopped existing (the caelestia gesture, the makoctl bind). Anything
-      released for other people needs this, and it should also flag config that
-      points at missing binaries.
-- [ ] **Keybind conflict detector** — 119 binds. The `Super+N` shadowing bug was
-      found by hand; a checker that flags duplicate and shadowed combos would have
-      caught it for free. Pairs naturally with the cheatsheet overlay.
-- [ ] **Bind usage stats** — log which binds actually fire, so after a few weeks
-      the dead ones can be pruned. Worth more than usual here, since the Alt key
-      does not work on this machine and those binds can never fire.
+- [x] **`ashura doctor` — DONE 2026-08-31.** `~/.config/ashura/bin/ashura-doctor`,
+      `--json` for the cockpit to render later. Reads hyprland.lua and the shell
+      QML and checks every command they actually invoke, rather than a hardcoded
+      list that would rot. Also checks autostarted daemons are still alive.
+      First run found four real faults: gammastep dead since geoclue was removed,
+      a missing geoclue agent path, missing trash-cli, and a shadowed bind.
+- [x] **Keybind conflict detector — DONE**, folded into the doctor rather than
+      built separately. Found `Super+Shift+comma` bound twice on its first run.
+- [ ] **Bind usage stats — OPT-IN, off by default.** Logs which binds actually
+      fire so dead ones can be pruned after a few weeks. Debugging aid, so it must
+      be a switch the user turns on, never silent background logging of every
+      keypress.
 
 ### Smaller improvements
 - [ ] **Workspace peek** — hover a pill for a live thumbnail. `ScreencopyView` is
@@ -291,12 +294,27 @@ edge-gesture framework for quickshell" — which is a real gap in that ecosystem
 and a far better thing to put your name on.
 </details>
 
-### ~~E4 — Command palette for the machine~~ — DECLINED 2026-08-31
-Too broad: either it fails to cover enough to be trusted, or it covers so much
-that nobody knows what to reach for. **The keybind cheatsheet therefore stays a
-standalone overlay** (see P0), rather than a view over a palette that will not exist.
+### E4 — Inspector-with-actions  🔒 ACCEPTED 2026-08-31 (reframed)
 
-<details><summary>original idea</summary>
+**Not** a command palette you type blind commands into. The shape is: **a manager
+that shows you the real state of something, and offers actions on the thing you
+are looking at.** You see the port, the container, the repo, the process — and act
+on the row in front of you.
+
+The rule that makes it acceptable:
+
+> **Nothing destructive without showing exactly what will happen.** Killing a
+> process names the process, its command line and how long it has been running.
+> A prune shows the space reclaimed *before* running. Verification is the feature,
+> not a speed bump on it.
+
+This is much closer to **B (dev cockpit)** than to a launcher, and should be built
+as the cockpit's interaction model rather than as a separate surface. Blind verbs
+("kill port 3000" typed from nowhere) are explicitly out of scope.
+
+The **keybind cheatsheet is the same pattern applied to binds** — see below.
+
+<details><summary>original, broader idea (rejected shape)</summary>
 
 One fuzzy surface over windows, workspaces, repos, containers, ports, files,
 settings and keybinds — that also *acts*: "kill port 3000", "prune docker",
