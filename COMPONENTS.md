@@ -746,11 +746,12 @@ Adopted instead:
 
 Revisit qylock's locker only if we ever migrate to `hyprland.lua`, which restores `eval`.
 
-# 26a. ⚠️ PLANNED: hyprland.lua migration
-0.56.2 warns that `.conf` support is removed in **0.57**. See `HYPRLAND-LUA-MIGRATION.md`.
-423 non-comment lines to convert; Ashura itself needs one dispatcher checked. Doing it also
-restores `hyprctl eval`, which would make qylock's lockscreen recoverable and therefore
-usable. Boot-critical — keep the `.conf` set as rollback and a TTY open.
+# 26a. hyprland.lua migration — WRITTEN, ACTIVE AT NEXT LOGIN (2026-08-31)
+Converted; see `HYPRLAND-LUA-MIGRATION.md`. Verified by nested-instance state comparison:
+118 distinct key combos on both sides, none missing, none extra. The `.conf` set is kept
+as a one-command rollback (`~/.config/ashura/bin/hypr-config-rollback`).
+Unblocks qylock: `hl.clear_crashed_lockscreen()` exists in the Lua API (see §26c).
+Needs a hand check after login: Super+LMB drag, Super+RMB resize, and the two group binds.
 
 # 26b. Deferred polish (revisit, not blocking)
 - **Sleep does not lock.** `before_sleep_cmd = loginctl lock-session` was removed from
