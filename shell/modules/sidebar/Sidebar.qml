@@ -175,7 +175,7 @@ Scope {
                             Rectangle {
                                 // Audio.effective is 0 while muted, so muting visibly
                                 // collapses the slider instead of leaving a stale fill.
-                                width: parent.width * Audio.effective
+                                width: parent.width * Math.min(1, Audio.effective / Audio.maxVolume)
                                 height: parent.height; radius: 4
                                 color: Audio.muted ? Colours.error : Colours.primary
                                 Behavior on width { NumberAnimation { duration: 140 } }
@@ -185,7 +185,7 @@ Scope {
                                 anchors.fill: parent; anchors.margins: -8
                                 onPressed: mouse => setVol(mouse.x)
                                 onPositionChanged: mouse => { if (pressed) setVol(mouse.x); }
-                                function setVol(px) { Audio.setVolume(px / volTrack.width); }
+                                function setVol(px) { Audio.setVolume(px / volTrack.width * Audio.maxVolume); }
                             }
                         }
                     }

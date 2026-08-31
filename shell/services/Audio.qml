@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import qs.config
 
 // One source of truth for audio, so the bar readout, the sidebar slider and the
 // quick toggle can never disagree (a mute has to be visible in all three).
@@ -13,14 +14,17 @@ Singleton {
 
     readonly property bool ready: node !== null
     readonly property bool muted: node?.muted ?? false
-    readonly property real volume: node?.volume ?? 0          // 0..1, raw
+    // Boost ceiling as a multiplier (1.5 = 150%). Read by the slider and the
+    // bar readout so nothing has its own idea of what "full" means.
+    readonly property real maxVolume: Config.options.audio?.maxVolume ?? 1.5
+    readonly property real volume: node?.volume ?? 0          // 0..maxVolume, raw
     readonly property int percent: ready ? Math.round(volume * 100) : -1
 
     // What the UI should show: muted reads as 0 everywhere.
     readonly property real effective: muted ? 0 : volume
     readonly property int effectivePercent: muted ? 0 : percent
 
-    function setVolume(v) { if (node) { node.volume = Math.max(0, Math.min(1, v)); if (node.muted && v > 0) node.muted = false; } }
+    function setVolume(v) { if (node) { node.volume = Math.max(0, Math.min(root.maxVolume, v)); if (node.muted && v > 0) node.muted = false; } }
     function toggleMute() { if (node) node.muted = !node.muted; }
 
     // A node's `properties` and `audio` are only populated once it is TRACKED, so
